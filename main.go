@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 )
 
@@ -44,8 +45,30 @@ func main() {
 
 	// At this point, the first argument refers to the scratchpad name
 	scratchpadName = first
+	scratchpadPath := filepath.Join(scratchpadDir, scratchpadName)
 
-	fmt.Println(scratchpadName, scratchpadDir)
+	// Create the scratch file
+	_, err = os.Create(scratchpadPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %e", err)
+		os.Exit(1)
+	}
+
+	// Open the file in the specified editor for editing
+	// TODO: Make the editor configurable
+	_, err = exec.Command("code", "--wait", scratchpadPath).Output()
+	if err != nil {
+		panic(err)
+	}
+
+	// Read file contents
+	contents, err := os.ReadFile(scratchpadPath)
+	if err != nil {
+		panic(err)
+	}
+
+	// Write contents to stdout
+	fmt.Println(string(contents))
 }
 
 // Shows the help message

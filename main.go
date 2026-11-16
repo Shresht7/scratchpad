@@ -24,22 +24,26 @@ func main() {
 		os.Mkdir(scratchpadDir, os.ModePerm)
 	}
 
-	// Set the scratchpad name if provided in arguments
+	// Extract the first argument
+	first := ""
 	if len(os.Args) >= 1 {
-		scratchpadName = os.Args[1]
+		first = os.Args[1]
 	}
 
 	// Show help if help was requested
-	if scratchpadName == "help" || scratchpadName == "--help" || scratchpadName == "-h" {
+	if first == "help" || first == "--help" || first == "-h" {
 		showHelp()
 		os.Exit(0)
 	}
 
 	// Show the version number if requested
-	if scratchpadName == "version" || scratchpadName == "--version" || scratchpadName == "-v" {
+	if first == "version" || first == "--version" || first == "-v" {
 		showVersion()
 		os.Exit(0)
 	}
+
+	// At this point, the first argument refers to the scratchpad name
+	scratchpadName = first
 
 	fmt.Println(scratchpadName, scratchpadDir)
 }

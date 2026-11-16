@@ -3,24 +3,50 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 )
 
 // Main entrypoint of the application
 func main() {
-	// Ensure we at least have one argument
-	if len(os.Args) <= 1 {
-		showHelp()
+
+	// Name of the scratchpad file
+	scratchpadName := "scratchpad"
+
+	// Scratchpad Directory
+	scratchpadDir, err := getScratchpadDir()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "ERROR: %e", err)
 		os.Exit(1)
 	}
 
-	// Extract the fileName from the first argument
-	fileName := os.Args[1]
-	if fileName != "" {
-		fmt.Println(fileName)
+	// Ensure that the directory exists
+	if _, err := os.Stat(scratchpadDir); os.IsNotExist(err) {
+		os.Mkdir(scratchpadDir, os.ModePerm)
 	}
+
+	// Set the scratchpad name if provided in arguments
+	if len(os.Args) >= 1 {
+		scratchpadName = os.Args[1]
+	}
+
+	fmt.Println(scratchpadName, scratchpadDir)
 }
 
 // Shows the help message
 func showHelp() {
 	fmt.Println("Scratchpad")
+}
+
+// Path to the scratchpad directory
+func getScratchpadDir() (string, error) {
+	// Get Home Directory
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+
+	// Scratchpad Directory
+	scratchpadDir := filepath.Join(homedir, ".cache", "scratchpad")
+
+	return scratchpadDir, nil
 }

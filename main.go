@@ -35,12 +35,23 @@ func main() {
 		os.Exit(0)
 	}
 
+	// Show the version number if requested
+	if scratchpadName == "version" || scratchpadName == "--version" || scratchpadName == "-v" {
+		showVersion()
+		os.Exit(0)
+	}
+
 	fmt.Println(scratchpadName, scratchpadDir)
 }
 
 // Shows the help message
 func showHelp() {
 	fmt.Println("Scratchpad")
+}
+
+// Shows the version number
+func showVersion() {
+	fmt.Println("v0.1.0")
 }
 
 // Path to the scratchpad directory

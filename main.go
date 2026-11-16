@@ -29,6 +29,12 @@ func main() {
 		scratchpadName = os.Args[1]
 	}
 
+	// Show help if help was requested
+	if scratchpadName == "help" || scratchpadName == "--help" || scratchpadName == "-h" {
+		showHelp()
+		os.Exit(0)
+	}
+
 	fmt.Println(scratchpadName, scratchpadDir)
 }
 

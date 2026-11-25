@@ -3,7 +3,7 @@
 # Enable strict behaviour. Exit on errors and unset vars. Fail on pipe errors.
 set -euo pipefail
 
-# COMMAND SWITCH
+# Command Switch
 case "${1:-}" in
     help|--help|-h)
         printf "usage: scratchpad [name]\n"
@@ -35,10 +35,15 @@ if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".."
     exit 1
 fi
 
-# Create the scratchpad file if it doesn't exist
+# Path to the scratchpad file
 scratchpad_file="$SCRATCHPAD_DIR/$name"
-if [[ ! -e "$scratchpad_file" ]]; then
-    touch "$scratchpad_file"
+
+if [[ -t 0 ]]; then
+    # Interactive use: keep the current note, creating if needed
+    [[ -e "$scratchpad_file" ]] || : > "$scratchpad_file"
+else
+    # Pipeline use: replace the note with incoming text
+    cat > "$scratchpad_file"
 fi
 
 # Editor to use for the scratchpad
@@ -58,7 +63,7 @@ else
 fi
 
 # Open the scratchpad with the editor
-"${editor_command[@]}" "$scratchpad_file"
+"${editor_command[@]}" "$scratchpad_file" </dev/tty >/dev/tty 2>&1
 
 # Once we're done editing, forward the file contents to stdout
 cat "$scratchpad_file"

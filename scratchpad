@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+# Exit on error and unset variables
+set -euo pipefail
+
+case "${1:-}" in
+    help|--help|-h)
+        printf "usage: scratchpad [name]\n"
+        exit 0
+        ;;
+    version|--version|-v)
+        printf "v0.1.0\n"
+        exit 0
+        ;;
+esac
+
+# Name of the scratchpad file
+name="${1:-scratchpad}"
+
+# Directory for scratchpad files
+SCRATCHPAD_DIR="$HOME/.cache/scratchpad"
+mkdir -p "$SCRATCHPAD_DIR"  # Ensure that the scratchpad directory exists
+
+# Keep names to a single file inside the scratchpad directory
+if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
+    printf "name must be a filename, not a path\n"
+    exit 1
+fi
+
+# Create the scratchpad file if it doesn't exist
+scratchpad_file="$SCRATCHPAD_DIR/$name"
+if [[ ! -e "$scratchpad_file" ]]; then
+    touch "$scratchpad_file"
+fi
+
+# Editor to use for the scratchpad
+editor="${EDITOR:-micro}"
+
+# Open the scratchpad with the editor
+"$editor" "$scratchpad_file"
+
+# Once we're done editing, forward the file contents to stdout
+cat "$scratchpad_file"

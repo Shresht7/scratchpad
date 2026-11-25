@@ -7,6 +7,7 @@ set -euo pipefail
 case "${1:-}" in
     help|--help|-h)
         printf "usage: scratchpad [name]\n"
+        # TODO: Update usage message
         exit 0
         ;;
     version|--version|-v)
@@ -14,6 +15,12 @@ case "${1:-}" in
         exit 0
         ;;
 esac
+
+# Helper function to show error and exit
+error() {
+    printf "error: %s\n" "$*" >&2
+    exit 1
+}
 
 # Name of the scratchpad file
 name="${1:-scratchpad}"
@@ -42,12 +49,12 @@ editor_command=()
 
 # Allow either an executable path (including one with spaces)
 # or a simple command plus arguments, such as "code --wait"
-if command -v "$editor" > /dev/null; then
+if command -v "$editor" > /dev/null 2>&1; then
     editor_command=("$editor")
 else
     read -r -a editor_command <<< "$editor"
-    ((${#editor_command[@]} > 0)) || printf "EDITOR is empty\n"; exit 1;
-    command -v "${editor_command[0]}" > /dev/null 2>&1 || printf "editor not found: ${editor_command[0]}\n"; exit 1;
+    ((${#editor_command[@]} > 0)) || error "EDITOR is empty"
+    command -v "${editor_command[0]}" > /dev/null 2>&1 || error "editor not found: ${editor_command[0]}"
 fi
 
 # Open the scratchpad with the editor

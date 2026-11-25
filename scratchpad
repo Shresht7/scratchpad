@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-# Exit on error and unset variables
+# Enable strict behaviour. Exit on errors and unset vars. Fail on pipe errors.
 set -euo pipefail
 
+# COMMAND SWITCH
 case "${1:-}" in
     help|--help|-h)
         printf "usage: scratchpad [name]\n"
@@ -36,8 +37,21 @@ fi
 # Editor to use for the scratchpad
 editor="${EDITOR:-micro}"
 
+# Build the editor command array
+editor_command=()
+
+# Allow either an executable path (including one with spaces)
+# or a simple command plus arguments, such as "code --wait"
+if command -v "$editor" > /dev/null; then
+    editor_command=("$editor")
+else
+    read -r -a editor_command <<< "$editor"
+    ((${#editor_command[@]} > 0)) || printf "EDITOR is empty\n"; exit 1;
+    command -v "${editor_command[0]}" > /dev/null 2>&1 || printf "editor not found: ${editor_command[0]}\n"; exit 1;
+fi
+
 # Open the scratchpad with the editor
-"$editor" "$scratchpad_file"
+"${editor_command[@]}" "$scratchpad_file"
 
 # Once we're done editing, forward the file contents to stdout
 cat "$scratchpad_file"

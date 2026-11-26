@@ -59,17 +59,13 @@ function scratchpad {
 
     # List scratchpad items if requested
     if ($List -or $Name -in @("list", "ls")) {
-        Get-Scratchpad
+        if (Test-Path $script:ScratchpadDirectory -PathType Container) {
+            Get-ChildItem $script:ScratchpadDirectory
+        }
         return
     }
 
     # TODO: Implement main logic
     Write-Output $Name
 
-}
-
-function Get-Scratchpad {
-    if (Test-Path $script:ScratchpadDirectory -PathType Container) {
-        Get-ChildItem $script:ScratchpadDirectory
-    }
 }

@@ -19,6 +19,11 @@ function scratchpad {
         [Parameter(Position = 0, ParameterSetName = "Name")]
         [string] $Name,
 
+        # Get scratchpad directory
+        [Parameter(ParameterSetName = "Directory")]
+        [Alias("dir", "d")]
+        [switch] $Directory,
+
         [Parameter(ParameterSetName = "List")]
         [Alias("l", "ls")]
         [switch] $List,
@@ -43,6 +48,12 @@ function scratchpad {
     # Show version if requested
     if ($Version -or $Name -in @("version", "v")) {
         Write-Output $script:ScratchpadVersion
+        return
+    }
+
+    # Show directory if requested
+    if ($Directory) {
+        Write-Output $script:ScratchpadDirectory
         return
     }
 

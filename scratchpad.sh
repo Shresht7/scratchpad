@@ -75,6 +75,26 @@ list() {
     ls "$SCRATCHPAD_DIR" "$@"
 }
 
+# ----
+# VIEW
+# ----
+
+view() {
+    name="${1:-}"
+    if [[ -z "$name" ]]; then
+        selection=$(ls "$SCRATCHPAD_DIR" | fzf \
+            --preview "cat $SCRATCHPAD_DIR/{}" \
+            --preview-window "right:70%" \
+            --reverse)
+        [[ -n "$selection" ]] && cat "$SCRATCHPAD_DIR/$selection"
+    else
+        if [[ ! -e "$SCRATCHPAD_DIR/$name" ]]; then
+            error "file not found"
+        fi
+        cat "$SCRATCHPAD_DIR/$name"
+    fi
+}
+
 # ------
 # REMOVE
 # ------

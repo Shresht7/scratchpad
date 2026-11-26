@@ -177,11 +177,13 @@ validate_name() {
     fi
 }
 
+# Display file with bat if available and outputting to an interactive terminal, else cat
 display_file() {
-    if command -v bat > /dev/null 2>&1; then
-        bat --color=always --style=plain --paging=never -- "$1"
+    local file="$1"
+    if [[ -t 1 ]] && command -v bat >/dev/null 2>&1; then
+        bat --color=always --style=plain --paging=never -- "$file"
     else
-        cat "$1"
+        cat "$file"
     fi
 }
 

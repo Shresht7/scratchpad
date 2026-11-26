@@ -159,24 +159,46 @@ function Show-Scratchpad {
         [string]$Name
     )
 
-    # Choose scratchpad if no name given
     if ([string]::IsNullOrWhiteSpace($Name)) {
-        $names = @(Get-Scratchpad | ForEach-Object { $_.Name })
+        $entries = @(
+            Get-Scratchpad | ForEach-Object {
+                "$($_.Name)`t$($_.FullName)"
+            }
+        )
 
-        if ($names.Count -eq 0) {
+        if ($entries.Count -eq 0) {
             return
         }
 
-        $fzfCommand = Get-Command -Name fzf -ErrorAction SilentlyContinue
+        $fzfCommand = Get-Command -Name fzf -CommandType Application -ErrorAction SilentlyContinue
         if (-not $fzfCommand) {
             throw 'fzf is required to choose a scratchpad when no name is provided.'
         }
 
-        $selectedName = $names | & $fzfCommand.Source --reverse
+        $batCommand = Get-Command -Name bat -CommandType Application -ErrorAction SilentlyContinue
+        if ($batCommand) {
+            $previewCommand = 'bat --color=always --style=plain --paging=never -- {2}'
+        }
+        elseif ($IsWindows -and $env:SHELL -notmatch '(?i)(bash|sh|zsh)') {
+            $previewCommand = 'type {2}'
+        }
+        else {
+            $previewCommand = 'cat -- {2}'
+        }
+
+        $fzfExecutable = $fzfCommand.Source
+        $selection = $entries |
+        & $fzfExecutable `
+            --reverse `
+            --delimiter "`t" `
+            --with-nth 1 `
+            --preview $previewCommand `
+            --preview-window 'right:75%'
+
         $fzfExitCode = $LASTEXITCODE
 
         # No selection or cancelled
-        if ($fzfExitCode -in @(1, 130) -or [string]::IsNullOrWhiteSpace($selectedName)) {
+        if ($fzfExitCode -in @(1, 130) -or [string]::IsNullOrWhiteSpace($selection)) {
             return
         }
 
@@ -184,7 +206,7 @@ function Show-Scratchpad {
             throw "fzf exited with code $fzfExitCode"
         }
 
-        $Name = $selectedName
+        $Name = ($selection -split "`t", 2)[0]
     }
 
     if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
@@ -192,7 +214,6 @@ function Show-Scratchpad {
     }
 
     $path = Join-Path $script:ScratchpadDirectory $Name
-
     if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
         throw "Scratchpad not found: $Name"
     }

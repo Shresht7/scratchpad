@@ -396,3 +396,68 @@ function Invoke-Scratchpad {
 }
 
 Set-Alias -Name scratchpad -Value Invoke-Scratchpad
+
+# ------------------
+# ARGUMENT COMPLETER
+# ------------------
+
+$ScratchpadCompleter = {
+    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+    $prefix = ([string]$wordToComplete).Trim([char[]]@([char]39, [char]34))
+    $candidates = @()
+
+    if ($parameterName -eq 'Name' -and
+        $commandName -in @('Invoke-Scratchpad', 'scratchpad')) {
+        $candidates += @(
+            'list', 'ls', '--list',
+            'view', '--view',
+            'rm', '--rm',
+            'dir', '--dir',
+            'version', '--version',
+            'help', '--help'
+        )
+    }
+
+    if ($parameterName -eq 'Name' -or
+        ($parameterName -eq 'Argument' -and
+        $fakeBoundParameters['Name'] -in @('view', '--view', 'rm', '--rm', '-r'))) {
+        $candidates += @(
+            Get-Scratchpad |
+            Where-Object { -not $_.PSIsContainer } |
+            ForEach-Object { $_.Name }
+        )
+    }
+
+    foreach ($candidate in ($candidates | Sort-Object -Unique)) {
+        if ($candidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+            $completionText = $candidate
+
+            if ($candidate -match '\s') {
+                $completionText = "'" + $candidate.Replace("'", "''") + "'"
+            }
+
+            [System.Management.Automation.CompletionResult]::new(
+                $completionText,
+                $candidate,
+                [System.Management.Automation.CompletionResultType]::ParameterValue,
+                $candidate
+            )
+        }
+    }
+}
+
+Register-ArgumentCompleter `
+    -CommandName 'Open-Scratchpad', 'Show-Scratchpad', 'Remove-Scratchpad' `
+    -ParameterName 'Name' `
+    -ScriptBlock $ScratchpadCompleter
+
+Register-ArgumentCompleter `
+    -CommandName 'Invoke-Scratchpad', 'scratchpad' `
+    -ParameterName 'Name' `
+    -ScriptBlock $ScratchpadCompleter
+
+Register-ArgumentCompleter `
+    -CommandName 'Invoke-Scratchpad', 'scratchpad' `
+    -ParameterName 'Argument' `
+    -ScriptBlock $ScratchpadCompleter

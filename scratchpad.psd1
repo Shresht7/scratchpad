@@ -72,6 +72,7 @@
     FunctionsToExport = @(
         "Get-Scratchpad",
         "Open-Scratchpad",
+        "Show-Scratchpad",
         "Get-ScratchpadDirectory",
         "Remove-Scratchpad"
     )

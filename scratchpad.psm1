@@ -147,6 +147,61 @@ function Invoke-ScratchpadEditor {
 
 <#
 .SYNOPSIS
+    Show the contents of a scratchpad
+.DESCRIPTION
+    Shows the contents of a scratchpad file.
+    If no name is given, fzf is used to select one.
+#>
+function Show-Scratchpad {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0)]
+        [string]$Name
+    )
+
+    # Choose scratchpad if no name given
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        $names = @(Get-Scratchpad | ForEach-Object { $_.Name })
+
+        if ($names.Count -eq 0) {
+            return
+        }
+
+        $fzfCommand = Get-Command -Name fzf -ErrorAction SilentlyContinue
+        if (-not $fzfCommand) {
+            throw 'fzf is required to choose a scratchpad when no name is provided.'
+        }
+
+        $selectedName = $names | & $fzfCommand.Source --reverse
+        $fzfExitCode = $LASTEXITCODE
+
+        # No selection or cancelled
+        if ($fzfExitCode -in @(1, 130) -or [string]::IsNullOrWhiteSpace($selectedName)) {
+            return
+        }
+
+        if ($fzfExitCode -ne 0) {
+            throw "fzf exited with code $fzfExitCode"
+        }
+
+        $Name = $selectedName
+    }
+
+    if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
+        throw 'Name must be a filename, not a path'
+    }
+
+    $path = Join-Path $script:ScratchpadDirectory $Name
+
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "Scratchpad not found: $Name"
+    }
+
+    Get-Content -LiteralPath $path -Raw
+}
+
+<#
+.SYNOPSIS
     Remove a scratchpad file
 .DESCRIPTION
     Deletes the specified scratchpad file

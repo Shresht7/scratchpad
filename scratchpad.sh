@@ -86,8 +86,19 @@ pick() {
 view() {
     name="${1:-}"
     if [[ -z "$name" ]]; then
-        selection=$(pick)
-        [[ -n "$selection" ]] && cat "$SCRATCHPAD_DIR/$selection"
+        if selection=$(pick); then
+            # got a selection
+            if [[ -n "$selection" ]]; then
+                cat "$SCRATCHPAD_DIR/$selection"
+            fi
+        else
+            # fzf selection failed
+            pick_status=$?
+            case "$pick_status" in
+                1|130) return 0;;
+                *) return "$pick_status";;
+            esac
+        fi
     else
         validate_name "$name"
         if [[ ! -e "$SCRATCHPAD_DIR/$name" ]]; then

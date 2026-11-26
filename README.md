@@ -31,3 +31,7 @@ scratchpad dir
 scratchpad version
 scratchpad help
 ```
+
+> [!NOTE]
+> The `name` is optional. Without it, the default `scratchpad` is used.
+> `scratchpad view` will open an interactive picker with `fzf` if no name is given.

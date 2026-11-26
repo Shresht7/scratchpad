@@ -274,3 +274,97 @@ function Remove-Scratchpad {
         }
     }
 }
+
+function Invoke-Scratchpad {
+    [CmdletBinding()]
+    param(
+        [Parameter(Position = 0)]
+        [string]$Name,
+
+        [Parameter(Position = 1)]
+        [string]$Argument,
+
+        [Parameter(ValueFromPipeline = $true)]
+        [AllowNull()]
+        [object]$InputObject,
+
+        [Alias('d')]
+        [switch]$Directory,
+
+        [Alias('l', 'ls')]
+        [switch]$List,
+
+        [Alias('h')]
+        [switch]$Help,
+
+        [Alias('v')]
+        [switch]$Version,
+
+        [Alias('r')]
+        [switch]$Remove
+    )
+
+    begin {
+        $hasPipelineInput = $MyInvocation.ExpectingInput
+        $inputLines = [System.Collections.Generic.List[string]]::new()
+    }
+
+    process {
+        if ($hasPipelineInput) {
+            $inputLines.Add([string]$InputObject)
+        }
+    }
+
+    end {
+        if ($Help -or $Name -in @('help', '--help', '-h', '?')) {
+            Get-Help Open-Scratchpad
+            return
+        }
+
+        if ($Version -or $Name -in @('version', '--version', '-v')) {
+            $moduleVersion = $ExecutionContext.SessionState.Module.Version
+            Write-Output "v$moduleVersion"
+            return
+        }
+
+        if ($Directory -or $Name -in @('dir', '--dir', '-d', '--directory')) {
+            Get-ScratchpadDirectory
+            return
+        }
+
+        if ($List -or $Name -in @('list', 'ls', '--list', '-l')) {
+            Get-Scratchpad
+            return
+        }
+
+        if ($Name -in @('view', '--view')) {
+            Show-Scratchpad -Name $Argument
+            return
+        }
+
+        if ($Remove -or $Name -in @('rm', '--rm', '-r')) {
+            if ($Name -in @('rm', '--rm', '-r')) {
+                $removeName = $Argument
+            }
+            else {
+                # For "scratchpad -r note", the note binds to $Name.
+                $removeName = if ($Argument) { $Argument } else { $Name }
+            }
+
+            if ([string]::IsNullOrWhiteSpace($removeName)) {
+                throw 'Specify a scratchpad name to remove.'
+            }
+
+            Remove-Scratchpad -Name $removeName
+            return
+        }
+
+        # No subcommand: open the default or named scratchpad.
+        Invoke-ScratchpadCore `
+            -Name $Name `
+            -HasPipelineInput $hasPipelineInput `
+            -InputLines $inputLines.ToArray()
+    }
+}
+
+Set-Alias -Name scratchpad -Value Invoke-Scratchpad

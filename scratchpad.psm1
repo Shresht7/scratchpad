@@ -69,18 +69,76 @@ function scratchpad {
         return
     }
 
-    # Ensure scratchpad directory exists
-    if (-not (Test-Path $script:ScratchpadDirectory)) {
-        New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
-    }
-
     # Use default name if none provided
     if ([string]::IsNullOrEmpty($Name)) {
         $Name = $script:DefaultScratchpad
     }
 
+    # Keep names to a single file inside the scratchpad directory
+    if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
+        throw 'Name must be a filename, not path'
+    }
+
+    # Ensure scratchpad directory exists
+    if (-not (Test-Path $script:ScratchpadDirectory)) {
+        New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
+    }
+
     # Get full path to scratchpad file
     $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
-    
-    # TODO: Implement main logic
+
+    # Create an empty file if needed
+    if (-not (Test-Path -LiteralPath $ScratchpadFile)) {
+        New-Item -ItemType File -Path $ScratchpadFile | Out-Null
+    }
+
+    # Open the file in the editor
+    Invoke-ScratchpadEditor -Path $ScratchpadFile
+
+    # Return the saved text to the PowerShell pipeline
+    Get-Content -LiteralPath $ScratchpadFile -Raw
+}
+
+<#
+.SYNOPSIS
+    Uses $env:EDITOR to open the file.
+.DESCRIPTION
+    Opens a scratchpad file in the editor specified by $env:EDITOR
+#>
+function Invoke-ScratchpadEditor {
+    param(
+        # Path to the file to open
+        [Parameter(Mandatory)]
+        [string]$Path
+    )
+
+    # Get editor from environment
+    $editor = $env:EDITOR
+    if ([string]::IsNullOrWhiteSpace($editor)) {
+        throw 'EDITOR is not set. Set it to the editor command to use.'
+    }
+
+    # Split editor into command and args if needed
+    $editorExecutable = $editor
+    $editorArguments = @()
+
+    # Allow either an executable path or a simple command with arguments, such as "code --wait"
+    if (-not (Get-Command -Name $editorExecutable -ErrorAction SilentlyContinue)) {
+        $editorParts = $editor -split '\s+'
+        $editorExecutable = $editorParts[0]
+        if ($editorParts.Count -gt 1) {
+            $editorArguments = @($editorParts[1..($editorParts.Count - 1)])
+        }
+    }
+
+    # Check if editor exists
+    if (-not (Get-Command -Name $editorExecutable -ErrorAction SilentlyContinue)) {
+        throw "Editor not found: $editorExecutable"
+    }
+
+    # Build arguments for editor
+    $arguments = @($editorArguments) + @($Path)
+
+    # Run the editor with arguments
+    & $editorExecutable @arguments
 }

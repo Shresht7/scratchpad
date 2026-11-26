@@ -160,10 +160,27 @@ function Invoke-ScratchpadEditor {
 function Remove-Scratchpad {
     [CmdletBinding(SupportsShouldProcess)]
     param(
-        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
         [string]$Name
     )
-    if ($PSCmdlet.ShouldProcess($Name)) {
-        Remove-Item -LiteralPath (Join-Path $script:ScratchpadDirectory $Name)
+
+    process {
+        # Validate name
+        if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
+            throw 'Name must be a filename, not a path'
+        }
+
+        # Build full path to scratchpad
+        $path = Join-Path $script:ScratchpadDirectory $Name
+
+        # Check if file exists
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw "Scratchpad not found: $Name"
+        }
+
+        # Confirm removal
+        if ($PSCmdlet.ShouldProcess($path, 'Remove scratchpad')) {
+            Remove-Item -LiteralPath $path -Confirm:$false
+        }
     }
 }

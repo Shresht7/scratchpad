@@ -275,31 +275,59 @@ function Remove-Scratchpad {
     }
 }
 
+<#
+.SYNOPSIS
+    Open, list, view, or remove scratchpad notes.
+.DESCRIPTION
+    With no subcommand, opens the default or named scratchpad. Piped text replaces
+    the selected note before it is opened; the saved contents are then sent to the
+    PowerShell pipeline.
+.EXAMPLE
+    scratchpad
+.EXAMPLE
+    scratchpad meeting
+.EXAMPLE
+    git diff | scratchpad request
+.EXAMPLE
+    scratchpad list
+.EXAMPLE
+    scratchpad view meeting
+.EXAMPLE
+    scratchpad rm meeting
+#>
 function Invoke-Scratchpad {
     [CmdletBinding()]
     param(
+        # A scratchpad name or positional subcommand such as `list`, `view`, or `rm`
         [Parameter(Position = 0)]
         [string]$Name,
 
+        # The name argument for subcommands such as `view` and `rm`
         [Parameter(Position = 1)]
         [string]$Argument,
 
+        # Input from pipeline
         [Parameter(ValueFromPipeline = $true)]
         [AllowNull()]
         [object]$InputObject,
 
+        # Print the scratchpad directory
         [Alias('d')]
         [switch]$Directory,
 
+        # List available scratchpads
         [Alias('l', 'ls')]
         [switch]$List,
 
+        # Show command help
         [Alias('h')]
         [switch]$Help,
 
+        # Show the module version
         [Alias('v')]
         [switch]$Version,
 
+        # Remove a scratchpad. Provide its name as the positional argument.
         [Alias('r')]
         [switch]$Remove
     )

@@ -20,10 +20,7 @@ scratchpad() {
     name="${1:-scratchpad}"
 
     # Keep names to a single file inside the scratchpad directory
-    if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
-        printf "name must be a filename, not a path\n"
-        exit 1
-    fi
+    validate_name "$name"
 
     # Path to the scratchpad file
     scratchpad_file="$SCRATCHPAD_DIR/$name"
@@ -92,6 +89,7 @@ view() {
         selection=$(pick)
         [[ -n "$selection" ]] && cat "$SCRATCHPAD_DIR/$selection"
     else
+        validate_name "$name"
         if [[ ! -e "$SCRATCHPAD_DIR/$name" ]]; then
             error "file not found"
         fi
@@ -106,7 +104,7 @@ view() {
 remove() {
     name="${1:-}"
     [[ -z "$name" ]] && error "no file specified"
-    [[ "$name" == *"/"* || "$name" == "." || "$name" == ".." ]] && error "invalid name"
+    validate_name "$name"
     [[ ! -e "$SCRATCHPAD_DIR/$name" ]] && error "file not found"
     rm -f "$SCRATCHPAD_DIR/$name"
     echo "removed $name"
@@ -119,6 +117,14 @@ remove() {
 error() {
     printf "error: %s\n" "$*" >&2
     exit 1
+}
+
+# Validate filename
+validate_name() {
+    local name="$1"
+    if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
+        error "name must be a filename, not a path"
+    fi
 }
 
 # --------------

@@ -11,6 +11,28 @@ SCRATCHPAD_DIR="$HOME/.cache/scratchpad"
 
 mkdir -p "$SCRATCHPAD_DIR"  # Ensure that the scratchpad directory exists
 
+# ----
+# HELP
+# ----
+
+show_help() {
+    printf '%s\n' \
+        "Usage: scratchpad [name]" \
+        "       scratchpad <command> [arguments]" \
+        "" \
+        "Commands:" \
+        "  list, ls, --list, -l [options]  List scratchpads" \
+        "  view, --view [name]             View a scratchpad; open picker if omitted" \
+        "  rm, --rm, -r <name>             Remove a scratchpad" \
+        "  dir, --dir, -d                  Print the scratchpad directory" \
+        "  version, --version, -v          Print the version" \
+        "  help, --help, -h                Show this help"
+}
+
+show_version() {
+    printf '%s\n' "$VERSION"
+}
+
 # ----------
 # SCRATCHPAD
 # ----------
@@ -146,13 +168,12 @@ case "${1:-}" in
 
     # HELP
     help|--help|-h)
-        printf "usage: scratchpad [name]\n"
-        # TODO: Update usage message
+        show_help
         ;;
 
     # VERSION
     version|--version|-v)
-        printf "%s\n" "$VERSION"
+        show_version
         ;;
 
     # DIRECTORY

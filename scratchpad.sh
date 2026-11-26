@@ -80,11 +80,12 @@ list() {
 # ------
 
 remove() {
-    [[ -z "$1" ]] && error "no file specified"
-    [[ "$1" == *"/"* || "$1" == "." || "$1" == ".." ]] && error "invalid name"
-    [[ ! -e "$SCRATCHPAD_DIR/$1" ]] && error "file not found"
-    rm -f "$SCRATCHPAD_DIR/$1"
-    echo "removed $1"
+    name="${1:-}"
+    [[ -z "$name" ]] && error "no file specified"
+    [[ "$name" == *"/"* || "$name" == "." || "$name" == ".." ]] && error "invalid name"
+    [[ ! -e "$SCRATCHPAD_DIR/$name" ]] && error "file not found"
+    rm -f "$SCRATCHPAD_DIR/$name"
+    echo "removed $name"
 }
 
 # HELPERS
@@ -120,17 +121,22 @@ case "${1:-}" in
 
     # LIST
     list|--list|-l)
-        list ${@:2}
+        list "${@:2}"
+        ;;
+
+    # VIEW
+    view|--view|-v)
+        view "${@:2}"
         ;;
 
     # REMOVE
     rm|--rm|-r)
-        remove ${@:2}
+        remove "${@:2}"
         ;;
 
     # DEFAULT
     *)
-        scratchpad $*
+        scratchpad "$@"
         ;;
 
 esac

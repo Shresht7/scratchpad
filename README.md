@@ -17,3 +17,17 @@ Link it to a directory in your PATH
 ```sh
 ln -s /path/to/scratchpad.sh ~/.local/bin/scratchpad
 ```
+
+---
+
+## Usage
+
+```sh
+scratchpad [name]
+scratchpad list
+scratchpad view [name]
+scratchpad rm <name>
+scratchpad dir
+scratchpad version
+scratchpad help
+```

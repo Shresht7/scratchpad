@@ -43,25 +43,25 @@ function scratchpad {
     )
 
     # Show help if requested
-    if ($Help -or $Name -in @("help", "h", "?")) {
+    if ($Help -or $Name -in @("help", "h", "?", "--help")) {
         Get-Help scratchpad
         return
     }
 
     # Show version if requested
-    if ($Version -or $Name -in @("version", "v")) {
+    if ($Version -or $Name -in @("version", "v", "--version")) {
         Write-Output $script:ScratchpadVersion
         return
     }
 
     # Show directory if requested
-    if ($Directory -or $Name -in @("dir", "d")) {
+    if ($Directory -or $Name -in @("dir", "d", "--dir", "--directory")) {
         Write-Output $script:ScratchpadDirectory
         return
     }
 
     # List scratchpad items if requested
-    if ($List -or $Name -in @("list", "ls")) {
+    if ($List -or $Name -in @("list", "ls", "--list")) {
         if (Test-Path $script:ScratchpadDirectory -PathType Container) {
             Get-ChildItem $script:ScratchpadDirectory
         }

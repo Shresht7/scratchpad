@@ -23,6 +23,10 @@ function scratchpad {
         [Parameter(Position = 0, ParameterSetName = "Name")]
         [string] $Name,
 
+        [Parameter(ValueFromPipeline)]
+        [AllowNull()]
+        [Object] $InputObject,
+
         # Get scratchpad directory
         [Parameter(ParameterSetName = "Directory")]
         [Alias("dir", "d")]
@@ -43,60 +47,90 @@ function scratchpad {
         [switch] $Version
     )
 
-    # Show help if requested
-    if ($Help -or $Name -in @("help", "h", "?", "--help")) {
-        Get-Help scratchpad
-        return
+    begin {
+        $hasPipelineInput = $MyInvocation.ExpectingInput
+        $InputLines = [System.Collections.Generic.List[string]]::new()
     }
 
-    # Show version if requested
-    if ($Version -or $Name -in @("version", "v", "--version")) {
-        Write-Output "v$script:ScratchpadVersion"
-        return
-    }
-
-    # Show directory if requested
-    if ($Directory -or $Name -in @("dir", "d", "--dir", "--directory")) {
-        Write-Output $script:ScratchpadDirectory
-        return
-    }
-
-    # List scratchpad items if requested
-    if ($List -or $Name -in @("list", "ls", "--list")) {
-        if (Test-Path $script:ScratchpadDirectory -PathType Container) {
-            Get-ChildItem $script:ScratchpadDirectory
+    process {
+        if ($hasPipelineInput) {
+            $InputLines.Add([string]$InputObject)
         }
-        return
     }
 
-    # Use default name if none provided
-    if ([string]::IsNullOrEmpty($Name)) {
-        $Name = $script:DefaultScratchpad
+    end {
+
+        # Show help if requested
+        if ($Help -or $Name -in @("help", "h", "?", "--help")) {
+            Get-Help scratchpad
+            return
+        }
+
+        # Show version if requested
+        if ($Version -or $Name -in @("version", "v", "--version")) {
+            Write-Output "v$script:ScratchpadVersion"
+            return
+        }
+
+        # Show directory if requested
+        if ($Directory -or $Name -in @("dir", "d", "--dir", "--directory")) {
+            Write-Output $script:ScratchpadDirectory
+            return
+        }
+
+        # List scratchpad items if requested
+        if ($List -or $Name -in @("list", "ls", "--list")) {
+            if (Test-Path $script:ScratchpadDirectory -PathType Container) {
+                Get-ChildItem $script:ScratchpadDirectory
+            }
+            return
+        }
+
+        # Use default name if none provided
+        if ([string]::IsNullOrEmpty($Name)) {
+            $Name = $script:DefaultScratchpad
+        }
+
+        # Keep names to a single file inside the scratchpad directory
+        if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
+            throw 'Name must be a filename, not path'
+        }
+
+        # Ensure scratchpad directory exists
+        if (-not (Test-Path $script:ScratchpadDirectory)) {
+            New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
+        }
+
+        # Get full path to scratchpad file
+        $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
+
+        # Create an empty file if needed
+        if (-not (Test-Path -LiteralPath $ScratchpadFile)) {
+            New-Item -ItemType File -Path $ScratchpadFile | Out-Null
+        }
+
+        if ($hasPipelineInput) {
+            $inputText = [string]::Join(
+                [System.Environment]::NewLine,
+                $InputLines.ToArray()
+            )
+            if ($InputLines.Count -gt 0) {
+                $inputText += [System.Environment]::NewLine
+            }
+            # Piped text replaces the selected scratchpad's content
+            Set-Content -LiteralPath $ScratchpadFile -Value $inputText
+        }
+        elseif (-not (Test-Path -LiteralPath $ScratchpadFile)) {
+            [System.IO.File]::WriteAllText($ScratchpadFile, '')
+        }
+
+        # Open the file in the editor
+        Invoke-ScratchpadEditor -Path $ScratchpadFile
+
+        # Return the saved text to the PowerShell pipeline
+        Get-Content -LiteralPath $ScratchpadFile -Raw
+
     }
-
-    # Keep names to a single file inside the scratchpad directory
-    if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
-        throw 'Name must be a filename, not path'
-    }
-
-    # Ensure scratchpad directory exists
-    if (-not (Test-Path $script:ScratchpadDirectory)) {
-        New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
-    }
-
-    # Get full path to scratchpad file
-    $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
-
-    # Create an empty file if needed
-    if (-not (Test-Path -LiteralPath $ScratchpadFile)) {
-        New-Item -ItemType File -Path $ScratchpadFile | Out-Null
-    }
-
-    # Open the file in the editor
-    Invoke-ScratchpadEditor -Path $ScratchpadFile
-
-    # Return the saved text to the PowerShell pipeline
-    Get-Content -LiteralPath $ScratchpadFile -Raw
 }
 
 <#

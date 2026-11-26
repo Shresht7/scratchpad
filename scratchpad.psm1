@@ -1,7 +1,3 @@
-# Scratchpad Version
-$manifestPath = Join-Path $PSScriptRoot 'scratchpad.psd1'
-$script:ScratchpadVersion = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
-
 # Directory for scratchpad files
 $script:ScratchpadDirectory = Join-Path $HOME ".cache" "scratchpad"
 
@@ -10,72 +6,39 @@ $script:DefaultScratchpad = "scratchpad"
 
 <#
 .SYNOPSIS
-    TODO: Write the synopsis
-.DESCRIPTION
-    TODO: Write the description
-.EXAMPLE
-    TODO: Write examples
+    Output scratchpad directory
 #>
-function scratchpad {
-    [CmdletBinding(DefaultParameterSetName = "Name")]
-    param(
-        [Parameter(Position = 0, ParameterSetName = "Name")]
-        [string] $Name,
-
-        # Get scratchpad directory
-        [Parameter(ParameterSetName = "Directory")]
-        [Alias("dir", "d")]
-        [switch] $Directory,
-
-        [Parameter(ParameterSetName = "List")]
-        [Alias("l", "ls")]
-        [switch] $List,
-
-        # Show help message
-        [Parameter(ParameterSetName = "Help")]
-        [Alias("h")]
-        [switch] $Help,
-
-        # Show version
-        [Parameter(ParameterSetName = "Version")]
-        [Alias("v")]
-        [switch] $Version
-    )
-
-    # Show help if requested
-    if ($Help -or $Name -in @("help", "h", "?", "--help")) {
-        Get-Help scratchpad
-        return
-    }
-
-    # Show version if requested
-    if ($Version -or $Name -in @("version", "v", "--version")) {
-        Write-Output "v$script:ScratchpadVersion"
-        return
-    }
-
-    # Show directory if requested
-    if ($Directory -or $Name -in @("dir", "d", "--dir", "--directory")) {
-        Write-Output $script:ScratchpadDirectory
-        return
-    }
-
-    # List scratchpad items if requested
-    if ($List -or $Name -in @("list", "ls", "--list")) {
-        Get-Scratchpad
-        return
-    }
-
-    # Open the scratchpad
-    Open-Scratchpad -Name $Name
+function Get-ScratchpadDirectory {
+    Write-Output $script:ScratchpadDirectory
 }
 
+<#
+.SYNOPSIS
+    Get scratchpad files
+.DESCRIPTION
+    Lists files in the scratchpad directory
+#>
 function Get-Scratchpad {
     if (Test-Path -LiteralPath $script:ScratchpadDirectory -PathType Container) {
         Get-ChildItem -LiteralPath $script:ScratchpadDirectory
     }
 }
 
+<#
+.SYNOPSIS
+    Open scratchpad
+.DESCRIPTION
+    Opens a scratchpad file
+.EXAMPLE
+    Open-Scratchpad
+    Opens the default scratchpad file
+.EXAMPLE
+    Open-Scratchpad -Name notes
+    Opens the notes scratchpad
+.EXAMPLE
+    git diff | Open-Scratchpad | Out-File -FilePath scratch.txt
+    Opens with piped input and write output to file
+#>
 function Open-Scratchpad {
     [CmdletBinding()]
     param(

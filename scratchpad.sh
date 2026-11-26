@@ -75,6 +75,18 @@ list() {
     ls "$SCRATCHPAD_DIR" "$@"
 }
 
+# ------
+# REMOVE
+# ------
+
+remove() {
+    [[ -z "$1" ]] && error "no file specified"
+    [[ "$1" == *"/"* || "$1" == "." || "$1" == ".." ]] && error "invalid name"
+    [[ ! -e "$SCRATCHPAD_DIR/$1" ]] && error "file not found"
+    rm -f "$SCRATCHPAD_DIR/$1"
+    echo "removed $1"
+}
+
 # HELPERS
 # -------
 
@@ -109,6 +121,11 @@ case "${1:-}" in
     # LIST
     list|--list|-l)
         list ${@:2}
+        ;;
+
+    # REMOVE
+    rm|--rm|-r)
+        remove ${@:2}
         ;;
 
     # DEFAULT

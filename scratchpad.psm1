@@ -1,4 +1,8 @@
+# Scratchpad Version
 $script:ScratchpadVersion = 'v0.1.0'
+
+# Directory for scratchpad files
+$script:ScratchpadDirectory = Join-Path $env:USERPROFILE ".cache" "scratchpad"
 
 <#
 .SYNOPSIS
@@ -14,6 +18,10 @@ function scratchpad {
     param(
         [Parameter(Position = 0, ParameterSetName = "Name")]
         [string] $Name,
+
+        [Parameter(ParameterSetName = "List")]
+        [Alias("l", "ls")]
+        [switch] $List,
 
         # Show help message
         [Parameter(ParameterSetName = "Help")]
@@ -38,7 +46,19 @@ function scratchpad {
         return
     }
 
+    # List scratchpad items if requested
+    if ($List -or $Name -in @("list", "ls")) {
+        Get-Scratchpad
+        return
+    }
+
     # TODO: Implement main logic
     Write-Output $Name
 
+}
+
+function Get-Scratchpad {
+    if (Test-Path $script:ScratchpadDirectory -PathType Container) {
+        Get-ChildItem $script:ScratchpadDirectory
+    }
 }

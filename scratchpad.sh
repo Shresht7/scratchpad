@@ -79,13 +79,17 @@ list() {
 # VIEW
 # ----
 
+pick() {
+    ls "$SCRATCHPAD_DIR" | fzf \
+        --preview "cat $SCRATCHPAD_DIR/{}" \
+        --preview-window "right:75%" \
+        --reverse
+}
+
 view() {
     name="${1:-}"
     if [[ -z "$name" ]]; then
-        selection=$(ls "$SCRATCHPAD_DIR" | fzf \
-            --preview "cat $SCRATCHPAD_DIR/{}" \
-            --preview-window "right:70%" \
-            --reverse)
+        selection=$(pick)
         [[ -n "$selection" ]] && cat "$SCRATCHPAD_DIR/$selection"
     else
         if [[ ! -e "$SCRATCHPAD_DIR/$name" ]]; then

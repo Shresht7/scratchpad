@@ -67,6 +67,14 @@ directory() {
     echo "$SCRATCHPAD_DIR"
 }
 
+# ----
+# LIST
+# ----
+
+list() {
+    ls "$SCRATCHPAD_DIR" "$@"
+}
+
 # HELPERS
 # -------
 
@@ -81,23 +89,31 @@ error() {
 # --------------
 
 case "${1:-}" in
+
     # HELP
     help|--help|-h)
         printf "usage: scratchpad [name]\n"
         # TODO: Update usage message
-        exit 0
         ;;
+
     # VERSION
     version|--version|-v)
         printf "%s\n" "$VERSION"
-        exit 0
         ;;
-    # LIST
+
+    # DIRECTORY
     dir|--dir|-d)
         directory
         ;;
+
+    # LIST
+    list|--list|-l)
+        list ${@:2}
+        ;;
+
     # DEFAULT
     *)
         scratchpad $*
         ;;
+
 esac

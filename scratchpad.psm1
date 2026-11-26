@@ -104,24 +104,17 @@ function scratchpad {
         # Get full path to scratchpad file
         $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
 
-        # Create an empty file if needed
-        if (-not (Test-Path -LiteralPath $ScratchpadFile)) {
-            New-Item -ItemType File -Path $ScratchpadFile | Out-Null
-        }
-
         if ($hasPipelineInput) {
-            $inputText = [string]::Join(
-                [System.Environment]::NewLine,
-                $InputLines.ToArray()
-            )
+            $inputText = [string]::Join([System.Environment]::NewLine, $InputLines.ToArray())
             if ($InputLines.Count -gt 0) {
                 $inputText += [System.Environment]::NewLine
             }
             # Piped text replaces the selected scratchpad's content
             Set-Content -LiteralPath $ScratchpadFile -Value $inputText
         }
-        elseif (-not (Test-Path -LiteralPath $ScratchpadFile)) {
-            [System.IO.File]::WriteAllText($ScratchpadFile, '')
+        elseif (-not (Test-Path -LiteralPath $ScratchpadFile -PathType Leaf)) {
+            # Create an empty file only for interactive use
+            New-Item -ItemType File -Path $ScratchpadFile | Out-Null
         }
 
         # Open the file in the editor

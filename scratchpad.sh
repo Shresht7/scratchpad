@@ -79,7 +79,7 @@ scratchpad() {
     "${editor_command[@]}" "$scratchpad_file" </dev/tty >/dev/tty 2>&1
 
     # Once we're done editing, forward the file contents to stdout
-    cat "$scratchpad_file"
+    display_file "$scratchpad_file"
 }
 
 # ---------
@@ -117,7 +117,7 @@ view() {
         if selection=$(pick); then
             # got a selection
             if [[ -n "$selection" ]]; then
-                cat "$SCRATCHPAD_DIR/$selection"
+                display_file "$SCRATCHPAD_DIR/$selection"
             fi
         else
             # fzf selection failed
@@ -132,7 +132,7 @@ view() {
         if [[ ! -e "$SCRATCHPAD_DIR/$name" ]]; then
             error "file not found"
         fi
-        cat "$SCRATCHPAD_DIR/$name"
+        display_file "$SCRATCHPAD_DIR/$name"
     fi
 }
 
@@ -164,6 +164,14 @@ validate_name() {
     local name="$1"
     if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
         error "name must be a filename, not a path"
+    fi
+}
+
+display_file() {
+    if command -v bat > /dev/null 2>&1; then
+        bat --color=always --style=plain --paging=never -- "$1"
+    else
+        cat "$1"
     fi
 }
 

@@ -38,6 +38,10 @@ show_version() {
 # ----------
 
 scratchpad() {
+    # Declare local variables
+    local name scratchpad_file editor
+    local -a editor_command
+
     # Name of the scratchpad file
     name="${1:-scratchpad}"
 
@@ -106,6 +110,8 @@ pick() {
 }
 
 view() {
+    local name selection pick_status
+    
     name="${1:-}"
     if [[ -z "$name" ]]; then
         if selection=$(pick); then
@@ -135,6 +141,7 @@ view() {
 # ------
 
 remove() {
+    local name
     name="${1:-}"
     [[ -z "$name" ]] && error "no file specified"
     validate_name "$name"

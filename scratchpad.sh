@@ -150,7 +150,7 @@ case "${1:-}" in
         ;;
 
     # LIST
-    list|--list|-l)
+    list|ls|--list|-l)
         list "${@:2}"
         ;;
 

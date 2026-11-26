@@ -144,3 +144,26 @@ function Invoke-ScratchpadEditor {
     # Run the editor with arguments
     & $editorExecutable @arguments
 }
+
+<#
+.SYNOPSIS
+    Remove a scratchpad file
+.DESCRIPTION
+    Deletes the specified scratchpad file
+.EXAMPLE
+    Remove-Scratchpad -Name notes
+    # Deletes the notes scratchpad
+.EXAMPLE
+    Get-Scratchpad | Where-Object { $_.Name -like '*temp*' } | Remove-Scratchpad
+    # Supports pipeline input
+#>
+function Remove-Scratchpad {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+        [string]$Name
+    )
+    if ($PSCmdlet.ShouldProcess($Name)) {
+        Remove-Item -LiteralPath (Join-Path $script:ScratchpadDirectory $Name)
+    }
+}

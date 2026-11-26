@@ -33,5 +33,6 @@ scratchpad help
 ```
 
 > [!NOTE]
-> The `name` is optional. Without it, the default `scratchpad` is used.
-> `scratchpad view` will open an interactive picker with `fzf` if no name is given.
+> - The `name` is optional. Without it, the default `scratchpad` is used.
+> - `scratchpad view` will open an interactive picker with `fzf` if no name is given.
+> - `scratchpad list` forwards extra arguments to `ls`

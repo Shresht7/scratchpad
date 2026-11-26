@@ -103,8 +103,18 @@ list() {
 # ----
 
 pick() {
-    ls "$SCRATCHPAD_DIR" | fzf \
-        --preview "cat $SCRATCHPAD_DIR/{}" \
+    local preview_command
+
+    # Choose preview command based on available tools
+    if command -v bat >/dev/null 2>&1; then
+        preview_command='bat --color=always --style=plain --paging=never -- "$SCRATCHPAD_DIR"/{}'
+    else
+        preview_command='cat -- "$SCRATCHPAD_DIR"/{}'
+    fi
+
+    # Run fzf with preview
+    ls "$SCRATCHPAD_DIR" | SCRATCHPAD_DIR="$SCRATCHPAD_DIR" fzf \
+        --preview "$preview_command" \
         --preview-window "right:75%" \
         --reverse
 }

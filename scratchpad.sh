@@ -149,7 +149,7 @@ case "${1:-}" in
         ;;
 
     # VIEW
-    view|--view|-v)
+    view|--view)
         view "${@:2}"
         ;;
 

@@ -55,6 +55,14 @@ scratchpad() {
     cat "$scratchpad_file"
 }
 
+# ---------
+# DIRECTORY
+# ---------
+
+directory() {
+    echo "$HOME/.cache/scratchpad"
+}
+
 # HELPERS
 # -------
 
@@ -80,8 +88,12 @@ case "${1:-}" in
         printf "v0.1.0\n"
         exit 0
         ;;
+    # LIST
+    dir|--dir|-d)
+        directory
+        ;;
     # DEFAULT
     *)
-        scratchpad
+        scratchpad "$1"
         ;;
 esac

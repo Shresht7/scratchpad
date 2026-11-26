@@ -3,6 +3,14 @@
 # Enable strict behaviour. Exit on errors and unset vars. Fail on pipe errors.
 set -euo pipefail
 
+# Script Version
+VERSION="v0.1.0"
+
+# Directory for scratchpad files
+SCRATCHPAD_DIR="$HOME/.cache/scratchpad"
+
+mkdir -p "$SCRATCHPAD_DIR"  # Ensure that the scratchpad directory exists
+
 # ----------
 # SCRATCHPAD
 # ----------
@@ -10,10 +18,6 @@ set -euo pipefail
 scratchpad() {
     # Name of the scratchpad file
     name="${1:-scratchpad}"
-
-    # Directory for scratchpad files
-    SCRATCHPAD_DIR="$HOME/.cache/scratchpad"
-    mkdir -p "$SCRATCHPAD_DIR"  # Ensure that the scratchpad directory exists
 
     # Keep names to a single file inside the scratchpad directory
     if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
@@ -60,7 +64,7 @@ scratchpad() {
 # ---------
 
 directory() {
-    echo "$HOME/.cache/scratchpad"
+    echo "$SCRATCHPAD_DIR"
 }
 
 # HELPERS
@@ -85,7 +89,7 @@ case "${1:-}" in
         ;;
     # VERSION
     version|--version|-v)
-        printf "v0.1.0\n"
+        printf "%s\n" "$VERSION"
         exit 0
         ;;
     # LIST
@@ -94,6 +98,6 @@ case "${1:-}" in
         ;;
     # DEFAULT
     *)
-        scratchpad "$1"
+        scratchpad $*
         ;;
 esac

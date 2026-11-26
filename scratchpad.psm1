@@ -91,39 +91,61 @@ function scratchpad {
             $Name = $script:DefaultScratchpad
         }
 
-        # Keep names to a single file inside the scratchpad directory
-        if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
-            throw 'Name must be a filename, not path'
-        }
-
-        # Ensure scratchpad directory exists
-        if (-not (Test-Path $script:ScratchpadDirectory)) {
-            New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
-        }
-
-        # Get full path to scratchpad file
-        $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
-
-        if ($hasPipelineInput) {
-            $inputText = [string]::Join([System.Environment]::NewLine, $InputLines.ToArray())
-            if ($InputLines.Count -gt 0) {
-                $inputText += [System.Environment]::NewLine
-            }
-            # Piped text replaces the selected scratchpad's content
-            [System.IO.File]::WriteAllText($ScratchpadFile, $inputText)
-        }
-        elseif (-not (Test-Path -LiteralPath $ScratchpadFile -PathType Leaf)) {
-            # Create an empty file only for interactive use
-            [System.IO.File]::WriteAllText($ScratchpadFile, '')
-        }
-
-        # Open the file in the editor
-        Invoke-ScratchpadEditor -Path $ScratchpadFile
-
-        # Return the saved text to the PowerShell pipeline
-        Get-Content -LiteralPath $ScratchpadFile -Raw
+        # Open the scratchpad
+        Open-Scratchpad -Name $Name -HasPipelineInput $hasPipelineInput -InputLines $InputLines.ToArray()
 
     }
+}
+
+<#
+.SYNOPSIS
+    Opens a scratchpad file
+.DESCRIPTION
+    Opens a scratchpad file in the editor.
+#>
+function Open-Scratchpad {
+    param(
+        [Parameter(Mandatory)]
+        [string]$Name,
+
+        [Parameter(Mandatory)]
+        [bool]$HasPipelineInput,
+
+        [Parameter(Mandatory)]
+        [string[]]$InputLines
+    )
+
+    # Keep names to a single file inside the scratchpad directory
+    if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
+        throw 'Name must be a filename, not path'
+    }
+
+    # Ensure scratchpad directory exists
+    if (-not (Test-Path $script:ScratchpadDirectory)) {
+        New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
+    }
+
+    # Get full path to scratchpad file
+    $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
+
+    if ($hasPipelineInput) {
+        $inputText = [string]::Join([System.Environment]::NewLine, $InputLines)
+        if ($InputLines.Count -gt 0) {
+            $inputText += [System.Environment]::NewLine
+        }
+        # Piped text replaces the selected scratchpad's content
+        [System.IO.File]::WriteAllText($ScratchpadFile, $inputText)
+    }
+    elseif (-not (Test-Path -LiteralPath $ScratchpadFile -PathType Leaf)) {
+        # Create an empty file only for interactive use
+        [System.IO.File]::WriteAllText($ScratchpadFile, '')
+    }
+
+    # Open the file in the editor
+    Invoke-ScratchpadEditor -Path $ScratchpadFile
+
+    # Return the saved text to the PowerShell pipeline
+    Get-Content -LiteralPath $ScratchpadFile -Raw
 }
 
 <#

@@ -80,9 +80,7 @@ function scratchpad {
 
         # List scratchpad items if requested
         if ($List -or $Name -in @("list", "ls", "--list")) {
-            if (Test-Path $script:ScratchpadDirectory -PathType Container) {
-                Get-ChildItem $script:ScratchpadDirectory
-            }
+            Get-Scratchpad
             return
         }
 
@@ -97,12 +95,12 @@ function scratchpad {
     }
 }
 
-<#
-.SYNOPSIS
-    Opens a scratchpad file
-.DESCRIPTION
-    Opens a scratchpad file in the editor.
-#>
+function Get-Scratchpad {
+    if (Test-Path -LiteralPath $script:ScratchpadDirectory -PathType Container) {
+        Get-ChildItem -LiteralPath $script:ScratchpadDirectory
+    }
+}
+
 function Open-Scratchpad {
     param(
         [Parameter(Mandatory)]

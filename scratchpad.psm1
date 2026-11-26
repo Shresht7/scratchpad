@@ -110,11 +110,11 @@ function scratchpad {
                 $inputText += [System.Environment]::NewLine
             }
             # Piped text replaces the selected scratchpad's content
-            Set-Content -LiteralPath $ScratchpadFile -Value $inputText
+            [System.IO.File]::WriteAllText($ScratchpadFile, $inputText)
         }
         elseif (-not (Test-Path -LiteralPath $ScratchpadFile -PathType Leaf)) {
             # Create an empty file only for interactive use
-            New-Item -ItemType File -Path $ScratchpadFile | Out-Null
+            [System.IO.File]::WriteAllText($ScratchpadFile, '')
         }
 
         # Open the file in the editor

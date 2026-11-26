@@ -2,7 +2,8 @@
 $script:ScratchpadVersion = 'v0.1.0'
 
 # Directory for scratchpad files
-$script:ScratchpadDirectory = Join-Path $env:USERPROFILE ".cache" "scratchpad"
+$script:ScratchpadDirectory = Join-Path $HOME ".cache" "scratchpad"
+
 
 <#
 .SYNOPSIS

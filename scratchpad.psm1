@@ -55,7 +55,7 @@ function scratchpad {
     }
 
     # Show directory if requested
-    if ($Directory) {
+    if ($Directory -or $Name -in @("dir", "d")) {
         Write-Output $script:ScratchpadDirectory
         return
     }

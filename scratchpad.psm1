@@ -1,5 +1,6 @@
 # Scratchpad Version
-$script:ScratchpadVersion = 'v0.1.0'
+$manifestPath = Join-Path $PSScriptRoot 'scratchpad.psd1'
+$script:ScratchpadVersion = (Import-PowerShellDataFile -Path $manifestPath).ModuleVersion
 
 # Directory for scratchpad files
 $script:ScratchpadDirectory = Join-Path $HOME ".cache" "scratchpad"
@@ -50,7 +51,7 @@ function scratchpad {
 
     # Show version if requested
     if ($Version -or $Name -in @("version", "v", "--version")) {
-        Write-Output $script:ScratchpadVersion
+        Write-Output "v$script:ScratchpadVersion"
         return
     }
 

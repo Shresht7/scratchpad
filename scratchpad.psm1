@@ -4,6 +4,8 @@ $script:ScratchpadVersion = 'v0.1.0'
 # Directory for scratchpad files
 $script:ScratchpadDirectory = Join-Path $HOME ".cache" "scratchpad"
 
+# Default scratchpad name
+$script:DefaultScratchpad = "scratchpad"
 
 <#
 .SYNOPSIS
@@ -66,7 +68,18 @@ function scratchpad {
         return
     }
 
-    # TODO: Implement main logic
-    Write-Output $Name
+    # Ensure scratchpad directory exists
+    if (-not (Test-Path $script:ScratchpadDirectory)) {
+        New-Item -ItemType Directory -Path $script:ScratchpadDirectory | Out-Null
+    }
 
+    # Use default name if none provided
+    if ([string]::IsNullOrEmpty($Name)) {
+        $Name = $script:DefaultScratchpad
+    }
+
+    # Get full path to scratchpad file
+    $ScratchpadFile = Join-Path $script:ScratchpadDirectory $Name
+    
+    # TODO: Implement main logic
 }

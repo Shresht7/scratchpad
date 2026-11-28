@@ -15,8 +15,6 @@ function Get-ScratchpadDirectory {
 <#
 .SYNOPSIS
     Get scratchpad files
-.DESCRIPTION
-    Lists files in the scratchpad directory
 #>
 function Get-Scratchpad {
     if (Test-Path -LiteralPath $script:ScratchpadDirectory -PathType Container) {
@@ -27,8 +25,6 @@ function Get-Scratchpad {
 <#
 .SYNOPSIS
     Open scratchpad
-.DESCRIPTION
-    Opens a scratchpad file
 .EXAMPLE
     Open-Scratchpad
     Opens the default scratchpad file
@@ -66,10 +62,6 @@ function Open-Scratchpad {
     }
 }
 
-<#
-.SYNOPSIS
-    Core logic
-#>
 function Invoke-ScratchpadCore {
     param(
         [string]$Name,
@@ -118,17 +110,13 @@ function Invoke-ScratchpadCore {
 <#
 .SYNOPSIS
     Uses $env:EDITOR to open the file.
-.DESCRIPTION
-    Opens a scratchpad file in the editor specified by $env:EDITOR
 #>
 function Invoke-ScratchpadEditor {
     param(
-        # Path to the file to open
         [Parameter(Mandatory)]
         [string]$Path
     )
 
-    # Get editor from environment
     $editor = $env:EDITOR
     if ([string]::IsNullOrWhiteSpace($editor)) {
         throw 'EDITOR is not set. Set it to the editor command to use.'
@@ -147,15 +135,12 @@ function Invoke-ScratchpadEditor {
         }
     }
 
-    # Check if editor exists
     if (-not (Get-Command -Name $editorExecutable -ErrorAction SilentlyContinue)) {
         throw "Editor not found: $editorExecutable"
     }
 
-    # Build arguments for editor
-    $arguments = @($editorArguments) + @($Path)
-
     # Run the editor with arguments
+    $arguments = @($editorArguments) + @($Path)
     & $editorExecutable @arguments
 }
 
@@ -238,8 +223,6 @@ function Show-Scratchpad {
 <#
 .SYNOPSIS
     Remove a scratchpad file
-.DESCRIPTION
-    Deletes the specified scratchpad file
 .EXAMPLE
     Remove-Scratchpad -Name notes
     # Deletes the notes scratchpad
@@ -255,20 +238,16 @@ function Remove-Scratchpad {
     )
 
     process {
-        # Validate name
         if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
             throw 'Name must be a filename, not a path'
         }
 
-        # Build full path to scratchpad
         $path = Join-Path $script:ScratchpadDirectory $Name
 
-        # Check if file exists
         if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
             throw "Scratchpad not found: $Name"
         }
 
-        # Confirm removal
         if ($PSCmdlet.ShouldProcess($path, 'Remove scratchpad')) {
             Remove-Item -LiteralPath $path -Confirm:$false
         }
@@ -409,12 +388,12 @@ Set-Alias -Name scratchpad -Value Invoke-Scratchpad
 # ------------------
 
 $ScratchpadCompleter = {
-    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+    param($cmdName, $paramName, $wordToComplete, $commandAst, $fbParams)
 
     $prefix = ([string]$wordToComplete).Trim([char[]]@([char]39, [char]34))
     $candidates = [System.Collections.Generic.List[string]]::new()
 
-    $noteNames = @(
+    $notes = @(
         Get-Scratchpad |
         Where-Object { -not $_.PSIsContainer -and -not $_.Name.StartsWith('-') } |
         ForEach-Object { $_.Name }
@@ -429,22 +408,22 @@ $ScratchpadCompleter = {
         '--remove', '--rm', '-r'
     )
 
-    $isDispatcher = $commandName -in @('Invoke-Scratchpad', 'scratchpad')
-    $nameValue = [string]$fakeBoundParameters['Name']
-    $isShowAction = $fakeBoundParameters.ContainsKey('Show') -or $nameValue -in ('--show', '--view', '-s')
-    $isRemoveAction = $fakeBoundParameters.ContainsKey('Remove') -or $nameValue -in ('--remove', '--rm', '-r')
+    $isDispatcher = $cmdName -in @('Invoke-Scratchpad', 'scratchpad')
+    $nameVal = [string]$fbParams['Name']
+    $isShow = $fbParams.ContainsKey('Show') -or $nameVal -in ('--show', '--view', '-s')
+    $isRemove = $fbParams.ContainsKey('Remove') -or $nameVal -in ('--remove', '--rm', '-r')
 
-    if ($isDispatcher -and $parameterName -eq 'Name') {
-        foreach ($name in $noteNames) { $candidates.Add($name) }
-        if ($prefix.StartsWith('-') -or $noteNames.Count -eq 0) {
+    if ($isDispatcher -and $paramName -eq 'Name') {
+        foreach ($name in $notes) { $candidates.Add($name) }
+        if ($prefix.StartsWith('-') -or $notes.Count -eq 0) {
             foreach ($action in $actions) { $candidates.Add($action) }
         }
     }
-    elseif ($parameterName -eq 'Name' -and -not $isDispatcher) {
-        foreach ($name in $noteNames) { $candidates.Add($name) }
+    elseif ($paramName -eq 'Name' -and -not $isDispatcher) {
+        foreach ($name in $notes) { $candidates.Add($name) }
     }
-    elseif ($isDispatcher -and $parameterName -eq 'Argument' -and ($isShowAction -or $isRemoveAction)) {
-        foreach ($name in $noteNames) { $candidates.Add($name) }
+    elseif ($isDispatcher -and $paramName -eq 'Argument' -and ($isShow -or $isRemove)) {
+        foreach ($name in $notes) { $candidates.Add($name) }
     }
 
     $candidates = $candidates | Sort-Object -Unique

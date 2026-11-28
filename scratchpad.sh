@@ -327,7 +327,7 @@ case "${1:-}" in
 
     # -- EXAMPLE --
 
-    --examples, --ex)
+    --examples|--ex)
         show_examples
         ;;
 

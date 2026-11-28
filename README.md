@@ -6,7 +6,7 @@ There are times when you need to write something in the terminal but still want 
 
 Using the editor directly works (mostly), but doesn't preserve history. If you make a small mistake while constructing your YAML or JSON, you may have to start over and rewrite the whole damn thing again. `scratchpad` preserves your edits so you can pick up where you left off.
 
-![Showcase scratchpad usage with JSON](./demo.gif)
+![Showcase scratchpad usage with JSON](./demo/demo.gif)
 
 Scratchpad files are plain-text files saved locally in a cache directory (`~/.cache/scratchpad`).
 

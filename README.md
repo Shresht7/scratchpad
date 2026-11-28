@@ -6,13 +6,13 @@ There are times when you need to write something in the terminal but still want 
 
 Using the editor directly works (mostly), but doesn't preserve history. If you make a small mistake while constructing your YAML or JSON, you may have to start over and rewrite the whole damn thing again. `scratchpad` preserves your edits so you can pick up where you left off.
 
-Scratchpad files are simple plain-text saved locally in a cache directory (`~/.cache/scratchpad`)
+Scratchpad files are simple plain-text saved locally in a cache directory (`~/.cache/scratchpad`).
 
 **Born out of the frustration of writing inline JSON for `curl`'s body**
 
 ## Requirements
 
-- An editor configured through ``$SCRATCHPAD_EDITOR` / `$EDITOR` / `$VISUAL`
+- An editor configured through `$SCRATCHPAD_EDITOR` / `$EDITOR` / `$VISUAL`
 - `fzf` for the interactive `--show` picker.
 - `bat` is optional and is used for colored previews when available.
 
@@ -76,7 +76,7 @@ Common user module directories are:
 - Windows: `$HOME\Documents\PowerShell\Modules\scratchpad`
 - Linux/macOS: `$HOME/.local/share/powershell/Modules/scratchpad`
 
-Set `$Env:EDITOR` or `$Env:VISUAL` in the current session or your PowerShell profile. For Visual Studio Code:
+Set `$Env:SCRATCHPAD_EDITOR`, `$Env:EDITOR` or `$Env:VISUAL` in the current session or your PowerShell profile. For Visual Studio Code:
 
 ```powershell
 $Env:EDITOR = 'code --wait'

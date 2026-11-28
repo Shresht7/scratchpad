@@ -27,7 +27,7 @@
 #
 # 1. Clone/Download the script somewhere.
 # 2. Make the script executable with `chmod +x /path/to/scratchpad.sh`
-# 3. Link it to a directory on your PATH: `ln -s /path/to/scratchpad/sh ~/.local/bin/scratchpad`
+# 3. Link it to a directory on your PATH: `ln -s /path/to/scratchpad.sh ~/.local/bin/scratchpad`
 
 # Enable strict shell behaviour
 # - e               exit immediately if a command fails
@@ -149,7 +149,7 @@ scratchpad() {
         editor_command=("$editor")
     else 
         read -r -a editor_command <<< "$editor"
-        ((${#editor_command[@]} > 0)) || error "EDITOR is empty"
+        ((${#editor_command[@]} > 0)) || error "editor command is empty"
         command -v "${editor_command[0]}" > /dev/null 2>&1 || error "editor not found: ${editor_command[0]}"
     fi
 

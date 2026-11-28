@@ -2,6 +2,12 @@
 
 A temporary terminal scratchpad for drafting text and editing piped input.
 
+There are times when you need to write something in the terminal but also require the power and convenience of your editor. There are also times when you want to quickly do one-off edits to the output of one command before passing it along to the input to the next. `scratchpad` is just shell commands over your editor that make this easy.
+
+Using the editor directly works (mostly), but doesn't preserve history in case you make a tiny mistake constructing your yaml and have to rewrite the whole thing again.
+
+**Born out of the frustration of writing inline JSON for `curl`'s body.**
+
 ## Requirements
 
 - An editor configured through `$EDITOR` / `$Env:EDITOR`

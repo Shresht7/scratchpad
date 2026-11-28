@@ -1,55 +1,76 @@
-_scratchpad_complete_names() {
-    local current="$1"
-    local scratchpad_dir="$HOME/.cache/scratchpad"
-    local path name
-
-    # Return if scratchpad dir doesn't exist
-    [[ -d "$scratchpad_dir" ]] || return 0
-
-    for path in "$scratchpad_dir"/*; do
-        [[ -f "$path" ]] || continue    # If not a file, skip
-
-        # Get the file name
-        name="${path##*/}"
-        if [[ "$name" == "$current"* ]]; then
-            COMPREPLY+=("$name")     # Add match to completions
-        fi
-    done
-}
-
 _scratchpad_complete() {
-    local current command action
- 
+
+    # Local vars
+    local current first path name action scratchpad_dir
+
+    # Scratchpad directory
+    scratchpad_dir="$HOME/.cache/scratchpad"
+
+    local -a names=()
+
     local -a actions=(
-        help --help -h
-        version --version -v
-        dir --dir -d
-        list ls --list -l
-        view --view
-        rm --rm -r
+        --help -h
+        --version -v
+        --dir --directory -d
+        --list -l
+        --show --view -s
+        --remove --rm -r
     )
 
+    # Initialize completions
     COMPREPLY=()
+
+    # Current word to complete
     current="${COMP_WORDS[COMP_CWORD]}"
 
-    # First argument: subcommands and existing note names
+    if [[ -d "$scratchpad_dir" ]]; then
+        for path in "$scratchpad_dir"/*; do
+            if [[ ! -f "$path" ]]; then
+                continue
+            fi
+
+            # Get file name
+            name="${path##*/}"
+
+            # Leading-dash names aren't valid
+            if [[ "$name" == -* ]]; then
+                continue
+            fi
+
+            # Add valid name to list
+            names+=("$name")
+        done
+    fi
+
+    # First argument: note names by default, action for flag prefixes
     if (( COMP_CWORD == 1 )); then
-        for action in "${actions[@]}"; do
-            if [[ "$action" == "$current"* ]]; then
-                COMPREPLY+=("$action")
+        for name in "${names[@]}"; do
+            if [[ "$name" == "$current"* ]]; then
+                COMPREPLY+=("$name")
             fi
         done
-    
-        _scratchpad_complete_names "$current"
+
+        if [[ "$current" == -* ]] || (( ${#names[@]} == 0 )); then
+            for action in "${actions[@]}"; do
+                if [[ "$action" == "$current"* ]]; then
+                    COMPREPLY+=("$action")
+                fi
+            done
+        fi
+
         return 0
     fi
 
-    # Second argument to view/rm: existing note names
-    command="${COMP_WORDS[1]}"
-    case "$command" in
-        view|--view|rm|--rm|-r)
+    # Second argument to --show/--view or --remove: note names
+    first="${COMP_WORDS[1]}"
+    case "$first" in
+        --show|--view|-s|--remove|--rm|-r)
             if (( COMP_CWORD == 2 )); then
-                _scratchpad_complete_names "$current"
+                for name in "${names[@]}"; do
+                    if [[ "$name" == "$current"* ]]; then
+                        COMPREPLY+=("$name")
+                    fi
+                done
             fi
             ;;
     esac

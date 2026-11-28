@@ -17,16 +17,25 @@ mkdir -p "$SCRATCHPAD_DIR"  # Ensure that the scratchpad directory exists
 
 show_help() {
     printf '%s\n' \
-        "Usage: scratchpad [name]" \
-        "       scratchpad <command> [arguments]" \
         "" \
-        "Commands:" \
-        "  list, ls, --list, -l [options]  List scratchpads" \
-        "  view, --view [name]             View a scratchpad; open picker if omitted" \
-        "  rm, --rm, -r <name>             Remove a scratchpad" \
-        "  dir, --dir, -d                  Print the scratchpad directory" \
-        "  version, --version, -v          Print the version" \
-        "  help, --help, -h                Show this help"
+        "terminal scratchpad" \
+        "" \
+        "Usage: scratchpad [name]" \
+        "       scratchpad --list [ls-options]" \
+        "       scratchpad --show [name]" \
+        "       scratchpad --remove <name>" \
+        "       scratchpad --dir" \
+        "       scratchpad --version" \
+        "       scratchpad --help" \
+        "" \
+        "Options:" \
+        "  --list, -l              List scratchpads; forward remaining arguments to ls" \
+        "  --show, --view [name]   Show a note; open the picker if name is omitted" \
+        "  --remove, --rm, -r name Remove a note" \
+        "  --dir, --directory, -d  Print the scratchpad directory" \
+        "  --version, -v           Print the version" \
+        "  --help, -h              Show this help" \
+        ""
 }
 
 show_version() {
@@ -99,7 +108,7 @@ list() {
 }
 
 # ----
-# VIEW
+# SHOW
 # ----
 
 pick() {
@@ -119,7 +128,7 @@ pick() {
         --reverse
 }
 
-view() {
+show() {
     local name selection pick_status
     
     name="${1:-}"
@@ -193,39 +202,45 @@ display_file() {
 
 case "${1:-}" in
 
-    # HELP
-    help|--help|-h)
+    --help|-h)
+        [[ $# -eq 1 ]] || error "help does not accept arguments"
         show_help
         ;;
 
-    # VERSION
-    version|--version|-v)
+    --version|-v)
+        [[ $# -eq 1 ]] || error "version does not accept arguments"
         show_version
         ;;
 
-    # DIRECTORY
-    dir|--dir|-d)
+    --dir|--directory|-d)
+        [[ $# -eq 1 ]] || error "directory does not accept arguments"
         directory
         ;;
 
-    # LIST
-    list|ls|--list|-l)
-        list "${@:2}"
+    --list|-l)
+        shift
+        list "$@"
         ;;
 
-    # VIEW
-    view|--view)
-        view "${@:2}"
+    --show|--view|-s)
+        shift
+        (( $# <= 1 )) || error "usage: scratchpad --show [name]"
+        show "${1:-}"
         ;;
 
-    # REMOVE
-    rm|--rm|-r)
-        remove "${@:2}"
+    --remove|--rm|-r)
+        shift
+        (( $# == 1 )) || error "usage: scratchpad --remove <name>"
+        remove "$1"
         ;;
 
-    # DEFAULT
+    -*)
+        error "unknown option: $1"
+        ;;
+
     *)
-        scratchpad "$@"
+        (( $# <= 1 )) || error "expected at most one scratchpad name"
+        scratchpad "${1:-scratchpad}"
         ;;
 
 esac

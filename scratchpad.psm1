@@ -279,30 +279,30 @@ function Remove-Scratchpad {
 .SYNOPSIS
     Open, list, view, or remove scratchpad notes.
 .DESCRIPTION
-    With no subcommand, opens the default or named scratchpad. Piped text replaces
+    With no action flag, opens the default or named scratchpad. Piped text replaces
     the selected note before it is opened; the saved contents are then sent to the
     PowerShell pipeline.
 .EXAMPLE
     scratchpad
 .EXAMPLE
-    scratchpad meeting
+    scratchpad test.json
 .EXAMPLE
-    git diff | scratchpad request
+    git log --oneline | scratchpad gitlog | wc -l
 .EXAMPLE
-    scratchpad list
+    scratchpad --list
 .EXAMPLE
-    scratchpad view meeting
+    scratchpad --view test.json
 .EXAMPLE
-    scratchpad rm meeting
+    scratchpad --remove test.json
 #>
 function Invoke-Scratchpad {
     [CmdletBinding()]
     param(
-        # A scratchpad name or positional subcommand such as `list`, `view`, or `rm`
+        # A scratchpad name or an action flag such as --list/--show/--remove
         [Parameter(Position = 0)]
         [string]$Name,
 
-        # The name argument for subcommands such as `view` and `rm`
+        # The name argument for flags such as `--show` and `--remove`
         [Parameter(Position = 1)]
         [string]$Argument,
 
@@ -318,6 +318,10 @@ function Invoke-Scratchpad {
         # List available scratchpads
         [Alias('l', 'ls')]
         [switch]$List,
+
+        # Show a scratchpad, or open the picker when no name is given
+        [Alias('View', 's')]
+        [switch]$Show,
 
         # Show command help
         [Alias('h')]
@@ -344,50 +348,53 @@ function Invoke-Scratchpad {
     }
 
     end {
-        if ($Help -or $Name -in @('help', '--help', '-h', '?')) {
+        $nameIsFlag = -not [string]::IsNullOrEmpty($Name) -and ($Name -like '-*')
+        $actionName = if ($nameIsFlag) { $Name.ToLowerInvariant() } else { $null }
+
+        if ($Help -or $actionName -in @('--help', '-h')) {
             Get-Help Invoke-Scratchpad -Detailed
             return
         }
 
-        if ($Version -or $Name -in @('version', '--version', '-v')) {
-            $moduleVersion = $ExecutionContext.SessionState.Module.Version
-            Write-Output "v$moduleVersion"
+        if ($Version -or $actionName -in @('--version', '-v')) {
+            Write-Output "v$($ExecutionContext.SessionState.Module.Version)"
             return
         }
 
-        if ($Directory -or $Name -in @('dir', '--dir', '-d', '--directory')) {
+        if ($Directory -or $actionName -in @('--dir', '--directory', '-d')) {
             Get-ScratchpadDirectory
             return
         }
 
-        if ($List -or $Name -in @('list', 'ls', '--list', '-l')) {
+        if ($List -or $actionName -in @('--list', '-l')) {
             Get-Scratchpad
             return
         }
 
-        if ($Name -in @('view', '--view')) {
-            Show-Scratchpad -Name $Argument
+        if ($Show -or $actionName -in @('--show', '--view', '-s')) {
+            $viewName = if ($actionName) { $Argument } else { $Name }
+            Show-Scratchpad -Name $viewName
             return
         }
 
-        if ($Remove -or $Name -in @('rm', '--rm', '-r')) {
-            if ($Name -in @('rm', '--rm', '-r')) {
-                $removeName = $Argument
-            }
-            else {
-                # For "scratchpad -r note", the note binds to $Name.
-                $removeName = if ($Argument) { $Argument } else { $Name }
-            }
-
+        if ($Remove -or $actionName -in @('--remove', '--rm', '-r')) {
+            $removeName = if ($actionName) { $Argument } else { $Name }
             if ([string]::IsNullOrWhiteSpace($removeName)) {
-                throw 'Specify a scratchpad name to remove.'
+                throw "Name required for remove"
             }
-
             Remove-Scratchpad -Name $removeName
             return
         }
 
-        # No subcommand: open the default or named scratchpad.
+        if ($nameIsFlag) {
+            throw "Unknown option: $Name"
+        }
+
+        if (-not [string]::IsNullOrEmpty($Argument)) {
+            throw "Expected at most one scratchpad name"
+        }
+
+        # Open the scratchpad
         Invoke-ScratchpadCore `
             -Name $Name `
             -HasPipelineInput $hasPipelineInput `
@@ -405,34 +412,46 @@ $ScratchpadCompleter = {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
     $prefix = ([string]$wordToComplete).Trim([char[]]@([char]39, [char]34))
-    $candidates = @()
+    $candidates = [System.Collections.Generic.List[string]]::new()
 
-    if ($parameterName -eq 'Name' -and
-        $commandName -in @('Invoke-Scratchpad', 'scratchpad')) {
-        $candidates += @(
-            'list', 'ls', '--list',
-            'view', '--view',
-            'rm', '--rm',
-            'dir', '--dir',
-            'version', '--version',
-            'help', '--help'
-        )
+    $noteNames = @(
+        Get-Scratchpad |
+        Where-Object { -not $_.PSIsContainer -and -not $_.Name.StartsWith('-') } |
+        ForEach-Object { $_.Name }
+    )
+
+    $actions = @(
+        '--help', '-h',
+        '--version', '-v',
+        '--dir', '--directory', '-d',
+        '--list', '-l',
+        '--show', '--view', '-s',
+        '--remove', '--rm', '-r'
+    )
+
+    $isDispatcher = $commandName -in @('Invoke-Scratchpad', 'scratchpad')
+    $nameValue = [string]$fakeBoundParameters['Name']
+    $isShowAction = $fakeBoundParameters.ContainsKey('Show') -or $nameValue -in ('--show', '--view', '-s')
+    $isRemoveAction = $fakeBoundParameters.ContainsKey('Remove') -or $nameValue -in ('--remove', '--rm', '-r')
+
+    if ($isDispatcher -and $parameterName -eq 'Name') {
+        foreach ($name in $noteNames) { $candidates.Add($name) }
+        if ($prefix.StartsWith('-') -or $noteNames.Count -eq 0) {
+            foreach ($action in $actions) { $candidates.Add($action) }
+        }
+    }
+    elseif ($parameterName -eq 'Name' -and -not $isDispatcher) {
+        foreach ($name in $noteNames) { $candidates.Add($name) }
+    }
+    elseif ($isDispatcher -and $parameterName -eq 'Argument' -and ($isShowAction -or $isRemoveAction)) {
+        foreach ($name in $noteNames) { $candidates.Add($name) }
     }
 
-    if ($parameterName -eq 'Name' -or
-        ($parameterName -eq 'Argument' -and
-        $fakeBoundParameters['Name'] -in @('view', '--view', 'rm', '--rm', '-r'))) {
-        $candidates += @(
-            Get-Scratchpad |
-            Where-Object { -not $_.PSIsContainer } |
-            ForEach-Object { $_.Name }
-        )
-    }
+    $candidates = $candidates | Sort-Object -Unique
 
-    foreach ($candidate in ($candidates | Sort-Object -Unique)) {
+    foreach ($candidate in $candidates) {
         if ($candidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
             $completionText = $candidate
-
             if ($candidate -match '\s') {
                 $completionText = "'" + $candidate.Replace("'", "''") + "'"
             }

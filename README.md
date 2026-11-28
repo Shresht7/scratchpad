@@ -96,12 +96,12 @@ The dispatcher supports:
 
 ```powershell
 scratchpad [name]
-scratchpad list
-scratchpad view [name]
-scratchpad rm <name>
-scratchpad dir
-scratchpad version
-scratchpad help
+scratchpad --list
+scratchpad --view [name]
+scratchpad --rm <name>
+scratchpad --dir
+scratchpad --version
+scratchpad --help
 ```
 
 > [!CAUTION]

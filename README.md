@@ -66,6 +66,7 @@ ln -s /path/to/scratchpad.sh ~/.local/bin/scratchpad
 scratchpad [name]
 scratchpad --list [ls options]
 scratchpad --show [name]
+scratchpad --clear [name]
 scratchpad --remove <name>
 scratchpad --dir
 scratchpad --examples
@@ -130,6 +131,7 @@ The module exposes native PowerShell commands and a `scratchpad` alias for the B
 Open-Scratchpad [-Name <name>]
 Get-Scratchpad
 Show-Scratchpad [-Name <name>]
+Clear-Scratchpad [-Name <name>]
 Remove-Scratchpad -Name <name>
 Get-ScratchpadDirectory
 ```
@@ -140,6 +142,7 @@ The dispatcher supports:
 scratchpad [name]
 scratchpad --list
 scratchpad --show [name]
+scratchpad --clear [name]
 scratchpad --remove <name>
 scratchpad --dir
 scratchpad --version

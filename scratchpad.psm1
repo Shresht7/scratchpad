@@ -372,12 +372,17 @@ function Invoke-Scratchpad {
         }
 
         if ($View -or $actionName -in @('--view', '--show', '-s')) {
-            Get-Scratchpad -Name $Argument
+            $viewName = if ($actionName) { $Argument } else { $Name }
+            Show-Scratchpad -Name $viewName
             return
         }
 
-        if ($Remove -or $actionName -in @('--rm', '-r')) {
-            Remove-Scratchpad -Name $Argument
+        if ($Remove -or $actionName -in @('--remove', '--rm', '-r')) {
+            $removeName = if ($actionName) { $Argument } else { $Name }
+            if ([string]::IsNullOrWhiteSpace($removeName)) {
+                throw "Name required for remove"
+            }
+            Remove-Scratchpad -Name $removeName
             return
         }
 
@@ -443,7 +448,7 @@ $ScratchpadCompleter = {
     }
 
     foreach ($candidate in $candidates) {
-        if ($candidate.StartsWith($prefix), [System.StringComparison]::OrdinalIgnoreCase) {
+        if ($candidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
             $completionText = $candidate
             if ($candidate -match '\s') {
                 $completionText = "'" + $candidate.Replace("'", "''") + "'"

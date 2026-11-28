@@ -19,7 +19,7 @@
 # Scratchpad files are simple plain-text saved locally in a cache directory (`~/.cache/scratchpad`)
 #
 # Requirements:
-# - An editor defined through `$EDITOR`
+# - An editor defined through `$SCRATCHPAD_EDITOR`, `$EDITOR` or `$VISUAL`
 # - (optional) `bat` for colored previews when available
 # - (optional) `fzf` for interactive `--show` picker
 
@@ -27,7 +27,7 @@
 #
 # 1. Clone/Download the script somewhere.
 # 2. Make the script executable with `chmod +x /path/to/scratchpad.sh`
-# 3. Link it to a directory on your PATH: `ln -s /path/to/scratchpad/sh ~/.local/bin/scratchpad`
+# 3. Link it to a directory on your PATH: `ln -s /path/to/scratchpad.sh ~/.local/bin/scratchpad`
 
 # Enable strict shell behaviour
 # - e               exit immediately if a command fails
@@ -70,6 +70,11 @@ show_help() {
         "  --examples              Show usage examples" \
         "  --version, -v           Print the version" \
         "  --help, -h              Show this help" \
+        "" \
+        "Environment:" \
+        "   Uses the editor defined by SCRATCHPAD_EDITOR." \
+        "   If SCRATCHPAD_EDITOR is not set, falls back to EDITOR then VISUAL." \
+        "       SCRATCHPAD_EDITOR > EDITOR > VISUAL" \
         "" \
         "NOTE: Without a [name], scratchpad uses a default note named 'scratchpad'" \
         "" \
@@ -129,12 +134,16 @@ scratchpad() {
         cat > "$scratchpad_file"
     fi
 
-    # Resolve $EDITOR into a command array
+    # Resolve $SCRATCHPAD_EDITOR / $EDITOR / $VISUAL into a command array
+    # - Prefer $SCRATCHPAD_EDITOR, then $EDITOR, then $VISUAL
     # - If the whole value is an executable path/name (including spaces), use it as-is.
     # - Otherwise split on whitespace so values like "code --wait" become: command + args
 
-    # Editor to use for the scratchpad
-    editor="${EDITOR:-micro}"
+    # Editor to use for the scratchpad ($SCRATCHPAD_EDITOR > $EDITOR > $VISUAL)
+    editor="${SCRATCHPAD_EDITOR:-${EDITOR:-${VISUAL:-}}}"
+
+    # Show an error if no editor is set
+    [[ -n "$editor" ]] || error "no editor configured. Set \$SCRATCHPAD_EDITOR, \$EDITOR or \$VISUAL (e.g. export EDITOR='micro')"
 
     # Build the editor command array
     editor_command=()
@@ -145,7 +154,7 @@ scratchpad() {
         editor_command=("$editor")
     else 
         read -r -a editor_command <<< "$editor"
-        ((${#editor_command[@]} > 0)) || error "EDITOR is empty"
+        ((${#editor_command[@]} > 0)) || error "editor command is empty"
         command -v "${editor_command[0]}" > /dev/null 2>&1 || error "editor not found: ${editor_command[0]}"
     fi
 

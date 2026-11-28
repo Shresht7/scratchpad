@@ -109,7 +109,7 @@ function Invoke-ScratchpadCore {
 
 <#
 .SYNOPSIS
-    Uses $env:EDITOR or $env:VISUAL to open the file.
+    Uses $env:SCRATCHPAD_EDITOR, $env:EDITOR or $env:VISUAL to open the file.
 #>
 function Invoke-ScratchpadEditor {
     param(
@@ -117,12 +117,15 @@ function Invoke-ScratchpadEditor {
         [string]$Path
     )
 
-    $editor = $env:EDITOR
+    $editor = $env:SCRATCHPAD_EDITOR
+    if ([string]::IsNullOrWhiteSpace($editor)) {
+        $editor = $env:EDITOR
+    }
     if ([string]::IsNullOrWhiteSpace($editor)) {
         $editor = $env:VISUAL
     }
     if ([string]::IsNullOrWhiteSpace($editor)) {
-        throw 'No editor configured. Set $Env:EDITOR or $Env:VISUAL (e.g. $Env:EDITOR="code --wait")'
+        throw 'No editor configured. Set $Env:SCRATCHPAD_EDITOR, $Env:EDITOR or $Env:VISUAL (e.g. $Env:EDITOR="code --wait")'
     }
 
     # Split editor into command and args if needed

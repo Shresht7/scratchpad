@@ -12,7 +12,7 @@ Scratchpad files are simple plain-text saved locally in a cache directory (`~/.c
 
 ## Requirements
 
-- An editor configured through `$EDITOR` / `$VISUAL` (PowerShell: `$Env:EDITOR` / `$Env:VISUAL`)
+- An editor configured through ``$SCRATCHPAD_EDITOR` / `$EDITOR` / `$VISUAL`
 - `fzf` for the interactive `--show` picker.
 - `bat` is optional and is used for colored previews when available.
 

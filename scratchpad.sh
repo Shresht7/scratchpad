@@ -2,19 +2,22 @@
 
 # scratchpad
 # 
-# A temporary terminal scratchpad for drafting/editing text and/or pipeline input using your $EDITOR
+# A temporary terminal scratchpad for quick edits in the terminal and in shell pipelines.
 #
 # There are times when you need to write something in the terminal
-# but also require the power and convenience of your editor.
-# There are also times when you want to quickly do one-off edits to the 
-# output of one command before passing it along to the input to the next.
+# but still want the power and convenience of your editor.
+# There are also times when you want to make quick, one-off edits
+# to the output of one command before passing it onto the next. 
 # 
-# scratchpad is just shell commands over your $EDITOR that make this easy.
+# `scratchpad` wraps your editor in a few shell commands to make that easy.
 #
-# Using the editor directly works (mostly), but doesn't preserve history,
-# in case you make a tiny mistake constructing your curl --body {json}
-# and have to rewrite the whole thing all over again.
+# Using the editor directly works (mostly), but doesn't preserve history.
+# If you make a small mistake while constructing your YAML or JSON,
+# you may have to start over and rewrite the whole damn thing again. 
+# `scratchpad` preserves your edits so you can pick up where you left off.
 # 
+# Scratchpad files are simple plain-text saved locally in a cache directory (`~/.cache/scratchpad`)
+#
 # Requirements:
 # - An editor defined through `$EDITOR`
 # - (optional) `bat` for colored previews when available

@@ -28,118 +28,115 @@ Type "scratchpad | jq ."
 Sleep 750ms
 Enter
 
-Sleep 1.5s
-Type@120ms "{"
-Sleep 300ms
+Sleep 1s
+Type "{"
 Enter
-Type@120ms `  "name": "v1",`
-Sleep 300ms
+Type `  "name": "v1",`
 Enter
-Type@120ms `  "kind": "demo"`
-Sleep 300ms
+Type `  "kind": "demo"`
 Enter
-Type@120ms "}"
+Type "}"
 Sleep 1s
 
 Ctrl+O
-Sleep 400ms
+Sleep 750ms
 Enter
-Sleep 400ms
+Sleep 750ms
 Ctrl+X
 
-Sleep 2.5s
+Sleep 1s
 
 # Second run: reopen persisted scratchpad, edit, pipe again
 Type "scratchpad | jq .name"
 Sleep 750ms
 Enter
 
-Sleep 1.5s
+Sleep 1s
 Ctrl+W
-Sleep 400ms
+Sleep 500ms
 Type@120ms "v1"
-Sleep 300ms
+Sleep 500ms
 Enter
-Sleep 400ms
+Sleep 500ms
 Ctrl+D
 Sleep 250ms
 Ctrl+D
-Sleep 400ms
+Sleep 250ms
 Type@120ms "v2"
 Sleep 1s
 
 Ctrl+O
-Sleep 400ms
+Sleep 750ms
 Enter
-Sleep 400ms
+Sleep 750ms
 Ctrl+X
 
-Sleep 2.5s
+Sleep 1s
 
 # Third run: reopen persisted scratchpad, edit, pipe again
 Type "scratchpad | jq ."
 Sleep 750ms
 Enter
 
-Sleep 1.5s
+Sleep 1s
 Ctrl+W
-Sleep 400ms
+Sleep 500ms
 Type@120ms "v2"
-Sleep 300ms
+Sleep 500ms
 Enter
-Sleep 400ms
+Sleep 500ms
 Ctrl+D
 Sleep 250ms
 Ctrl+D
-Sleep 400ms
+Sleep 250ms
 Type@120ms "v3"
 Sleep 1s
 
 Ctrl+O
-Sleep 400ms
+Sleep 750ms
 Enter
-Sleep 400ms
+Sleep 750ms
 Ctrl+X
 
-Sleep 2.5s
+Sleep 1s
 
 # Pipeline: keep only ERROR lines in the editor
 Type "cat app.log | scratchpad | wc -l"
 Sleep 750ms
 Enter
 
-Sleep 1.5s
+Sleep 1s
 Ctrl+W
-Sleep 400ms
+Sleep 500ms
 Type@120ms "INFO"
-Sleep 300ms
+Sleep 500ms
 Enter
-Sleep 400ms
+Sleep 500ms
 Ctrl+K
 Sleep 500ms
 
 Ctrl+W
-Sleep 400ms
+Sleep 500ms
 Type@120ms "INFO"
-Sleep 300ms
+Sleep 500ms
 Enter
-Sleep 400ms
+Sleep 500ms
 Ctrl+K
 Sleep 500ms
 
 Ctrl+W
-Sleep 400ms
+Sleep 500ms
 Type@120ms "INFO"
-Sleep 300ms
+Sleep 500ms
 Enter
-Sleep 400ms
+Sleep 500ms
 Ctrl+K
 Sleep 1s
 
 Ctrl+O
-Sleep 400ms
+Sleep 750ms
 Enter
-Sleep 400ms
+Sleep 750ms
 Ctrl+X
 
-Sleep 3s
+Sleep 2s

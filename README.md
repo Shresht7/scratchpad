@@ -12,7 +12,7 @@ Scratchpad files are simple plain-text saved locally in a cache directory (`~/.c
 
 ## Requirements
 
-- An editor configured through `$EDITOR` / `$Env:EDITOR`
+- An editor configured through `$EDITOR` / `$VISUAL` (PowerShell: `$Env:EDITOR` / `$Env:VISUAL`)
 - `fzf` for the interactive `--show` picker.
 - `bat` is optional and is used for colored previews when available.
 
@@ -76,7 +76,7 @@ Common user module directories are:
 - Windows: `$HOME\Documents\PowerShell\Modules\scratchpad`
 - Linux/macOS: `$HOME/.local/share/powershell/Modules/scratchpad`
 
-Set `$Env:EDITOR` in the current session or your PowerShell profile. For Visual Studio Code:
+Set `$Env:EDITOR` or `$Env:VISUAL` in the current session or your PowerShell profile. For Visual Studio Code:
 
 ```powershell
 $Env:EDITOR = 'code --wait'

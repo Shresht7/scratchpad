@@ -19,7 +19,7 @@
 # Scratchpad files are simple plain-text saved locally in a cache directory (`~/.cache/scratchpad`)
 #
 # Requirements:
-# - An editor defined through `$EDITOR`
+# - An editor defined through `$EDITOR` or `$VISUAL`
 # - (optional) `bat` for colored previews when available
 # - (optional) `fzf` for interactive `--show` picker
 
@@ -129,12 +129,16 @@ scratchpad() {
         cat > "$scratchpad_file"
     fi
 
-    # Resolve $EDITOR into a command array
+    # Resolve $EDITOR / $VISUAL into a command array
+    # - Prefer $EDITOR, then fallback to $VISUAL
     # - If the whole value is an executable path/name (including spaces), use it as-is.
     # - Otherwise split on whitespace so values like "code --wait" become: command + args
 
-    # Editor to use for the scratchpad
-    editor="${EDITOR:-micro}"
+    # Editor to use for the scratchpad ($EDITOR -or $VISUAL)
+    editor="${EDITOR:-${VISUAL:-}}"
+
+    # Show an error if no editor is set
+    [[ -n "$editor" ]] || error "no editor configured. Set \$EDITOR or \$VISUAL (e.g. export EDITOR='micro')"
 
     # Build the editor command array
     editor_command=()

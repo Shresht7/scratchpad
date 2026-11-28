@@ -447,6 +447,8 @@ $ScratchpadCompleter = {
         foreach ($name in $noteNames) { $candidates.Add($name) }
     }
 
+    $candidates = $candidates | Sort-Object -Unique
+
     foreach ($candidate in $candidates) {
         if ($candidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
             $completionText = $candidate

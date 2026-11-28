@@ -8,7 +8,7 @@ Set FontSize 20
 Set Width 1200
 Set Height 600
 Set Padding 24
-Set Theme "Catppuccin Mocha"
+Set Theme "MaterialDarker"
 Set TypingSpeed 50ms
 
 Env EDITOR "nano"

@@ -129,10 +129,13 @@ scratchpad --help
 ```
 
 > [!CAUTION]
-> Piped text replaces the selected note before it opens in the editor. For example:
-> 
+> Piped text replaces the selected note's contents before opening the editor. For example:
+>
 > ```powershell
 > git diff | scratchpad review
 > ```
 
-`Show-Scratchpad` uses an interactive `fzf` picker when no name is provided (requires `fzf`). PowerShell pipelines pass objects, so the module converts incoming objects to text lines; it is intended for text, not binary data.
+> [!NOTE]
+> - After editing, the saved contents are returned to the PowerShell pipeline.
+> - `Show-Scratchpad` uses an interactive `fzf` picker when no name is provided (requires `fzf`).
+> - PowerShell pipelines pass objects, so the module converts incoming objects to text lines; it is intended for text, not binary data.

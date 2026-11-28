@@ -25,90 +25,121 @@ Show
 
 # First run: draft in editor, pipe to jq
 Type "scratchpad | jq ."
-Sleep 500ms
+Sleep 750ms
 Enter
+
+Sleep 1.5s
+Type@120ms "{"
+Sleep 300ms
+Enter
+Type@120ms `  "name": "v1",`
+Sleep 300ms
+Enter
+Type@120ms `  "kind": "demo"`
+Sleep 300ms
+Enter
+Type@120ms "}"
 Sleep 1s
 
-# Edit the JSON in nano
-Type "{"
-Enter
-Type `  "name": "v1",`
-Enter
-Type `  "kind": "demo"`
-Enter
-Type "}"
-Sleep 500ms
-
-# Save and quit nano
 Ctrl+O
+Sleep 400ms
 Enter
+Sleep 400ms
 Ctrl+X
 
-# jq prints the edited JSON
-Sleep 2s
+Sleep 2.5s
 
-# Second run: Run the same command again but pipe to jq .name this time
+# Second run: reopen persisted scratchpad, edit, pipe again
 Type "scratchpad | jq .name"
-Sleep 500ms
+Sleep 750ms
 Enter
 
-Sleep 1s
+Sleep 1.5s
 Ctrl+W
-Type "v1"
+Sleep 400ms
+Type@120ms "v1"
+Sleep 300ms
 Enter
+Sleep 400ms
 Ctrl+D
+Sleep 250ms
 Ctrl+D
-Type "v2"
-Sleep 500ms
+Sleep 400ms
+Type@120ms "v2"
+Sleep 1s
 
 Ctrl+O
+Sleep 400ms
 Enter
+Sleep 400ms
 Ctrl+X
+
+Sleep 2.5s
 
 # Third run: reopen persisted scratchpad, edit, pipe again
-Sleep 1s
 Type "scratchpad | jq ."
-Sleep 500ms
+Sleep 750ms
 Enter
 
-Sleep 1s
+Sleep 1.5s
 Ctrl+W
-Type "v2"
+Sleep 400ms
+Type@120ms "v2"
+Sleep 300ms
 Enter
+Sleep 400ms
 Ctrl+D
+Sleep 250ms
 Ctrl+D
-Type "v3"
-Sleep 500ms
+Sleep 400ms
+Type@120ms "v3"
+Sleep 1s
 
 Ctrl+O
+Sleep 400ms
 Enter
+Sleep 400ms
 Ctrl+X
 
+Sleep 2.5s
 
 # Pipeline: keep only ERROR lines in the editor
-Sleep 1s
 Type "cat app.log | scratchpad | wc -l"
-Sleep 500ms
+Sleep 750ms
 Enter
 
-Sleep 1s
+Sleep 1.5s
 Ctrl+W
-Type "INFO"
+Sleep 400ms
+Type@120ms "INFO"
+Sleep 300ms
 Enter
-Ctrl+K
-Ctrl+W
-Type "INFO"
-Enter
-Ctrl+K
-Ctrl+W
-Type "INFO"
-Enter
+Sleep 400ms
 Ctrl+K
 Sleep 500ms
+
+Ctrl+W
+Sleep 400ms
+Type@120ms "INFO"
+Sleep 300ms
+Enter
+Sleep 400ms
+Ctrl+K
+Sleep 500ms
+
+Ctrl+W
+Sleep 400ms
+Type@120ms "INFO"
+Sleep 300ms
+Enter
+Sleep 400ms
+Ctrl+K
+Sleep 1s
 
 Ctrl+O
+Sleep 400ms
 Enter
+Sleep 400ms
 Ctrl+X
 
-# Wait a while at the end
-Sleep 2s
+Sleep 3s

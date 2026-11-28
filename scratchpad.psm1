@@ -345,7 +345,7 @@ function Invoke-Scratchpad {
 
     end {
         if ($Help -or $Name -in @('help', '--help', '-h', '?')) {
-            Get-Help Open-Scratchpad
+            Get-Help Invoke-Scratchpad -Detailed
             return
         }
 

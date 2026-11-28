@@ -56,6 +56,7 @@ show_help() {
         "Usage: scratchpad [name]" \
         "       scratchpad --list [ls-options]" \
         "       scratchpad --show [name]" \
+        "       scratchpad --clear [name]" \
         "       scratchpad --remove <name>" \
         "       scratchpad --dir" \
         "       scratchpad --examples" \
@@ -65,6 +66,7 @@ show_help() {
         "Options:" \
         "  --list, -l              List scratchpads; forward remaining arguments to ls" \
         "  --show, --view [name]   Show a note; open the picker if name is omitted" \
+        "  --clear, -c [name]      Clear a scratchpad's contents" \
         "  --remove, --rm, -r name Remove a note" \
         "  --dir, --directory, -d  Print the scratchpad directory" \
         "  --examples              Show usage examples" \
@@ -248,6 +250,19 @@ show() {
     fi
 }
 
+# -----
+# CLEAR
+# -----
+
+# Clear a scratchpad's contents
+clear_scratchpad() {
+    local name
+    name="${1:-scratchpad}"
+    validate_name "$name"
+    [[ ! -e "$SCRATCHPAD_DIR/$name" ]] && error "file not found"
+    : > "$SCRATCHPAD_DIR/$name"
+}
+
 # ------
 # REMOVE
 # ------
@@ -351,6 +366,14 @@ case "${1:-}" in
         shift
         (( $# <= 1 )) || error "usage: scratchpad --show [name]"
         show "${1:-}"
+        ;;
+
+    # -- CLEAR --
+
+    --clear|-c)
+        shift
+        (( $# <= 1 )) || error "usage: scratchpad --clear [name]"
+        clear_scratchpad "${1:-}"
         ;;
 
     # -- REMOVE --

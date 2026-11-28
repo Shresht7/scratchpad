@@ -228,6 +228,35 @@ function Show-Scratchpad {
 
 <#
 .SYNOPSIS
+    Clear a scratchpad's contents
+#>
+function Clear-Scratchpad {
+    [CmdletBinding(SupportsShouldProcess)]
+    param(
+        [Parameter(Position = 0)]
+        [string]$Name
+    )
+
+    if ([string]::IsNullOrEmpty($Name)) {
+        $Name = $script:DefaultScratchpad
+    }
+
+    if ($Name -match '[/\\]' -or $Name -in @('.', '..')) {
+        throw 'Name must be a filename, not a path'
+    }
+
+    $path = Join-Path $script:ScratchpadDirectory $Name
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+        throw "Scratchpad not found: $Name"
+    }
+
+    if ($PSCmdlet.ShouldProcess($path, 'Clear scratchpad')) {
+        [System.IO.File]::WriteAllText($path, '')
+    }
+}
+
+<#
+.SYNOPSIS
     Remove a scratchpad file
 .EXAMPLE
     Remove-Scratchpad -Name notes
@@ -310,6 +339,9 @@ function Invoke-Scratchpad {
         [Alias('View', 's')]
         [switch]$Show,
 
+        # Clear a scratchpad's contents. Provide its name as the positional argument.
+        [switch]$Clear,
+
         # Show command help
         [Alias('h')]
         [switch]$Help,
@@ -364,6 +396,12 @@ function Invoke-Scratchpad {
             return
         }
 
+        if ($Clear -or $actionName -in @('--clear')) {
+            $clearName = if ($actionName) { $Argument } else { $Name }
+            Clear-Scratchpad -Name $clearName
+            return
+        }
+
         if ($Remove -or $actionName -in @('--remove', '--rm', '-r')) {
             $removeName = if ($actionName) { $Argument } else { $Name }
             if ([string]::IsNullOrWhiteSpace($removeName)) {
@@ -413,12 +451,14 @@ $ScratchpadCompleter = {
         '--dir', '--directory', '-d',
         '--list', '-l',
         '--show', '--view', '-s',
+        '--clear', '-c',
         '--remove', '--rm', '-r'
     )
 
     $isDispatcher = $cmdName -in @('Invoke-Scratchpad', 'scratchpad')
     $nameVal = [string]$fbParams['Name']
     $isShow = $fbParams.ContainsKey('Show') -or $nameVal -in ('--show', '--view', '-s')
+    $isClear = $fbParams.ContainsKey('Clear') -or $nameVal -in ('--clear', '-c')
     $isRemove = $fbParams.ContainsKey('Remove') -or $nameVal -in ('--remove', '--rm', '-r')
 
     if ($isDispatcher -and $paramName -eq 'Name') {
@@ -430,7 +470,7 @@ $ScratchpadCompleter = {
     elseif ($paramName -eq 'Name' -and -not $isDispatcher) {
         foreach ($name in $notes) { $candidates.Add($name) }
     }
-    elseif ($isDispatcher -and $paramName -eq 'Argument' -and ($isShow -or $isRemove)) {
+    elseif ($isDispatcher -and $paramName -eq 'Argument' -and ($isShow -or $isRemove -or $isClear)) {
         foreach ($name in $notes) { $candidates.Add($name) }
     }
 
@@ -454,7 +494,7 @@ $ScratchpadCompleter = {
 }
 
 Register-ArgumentCompleter `
-    -CommandName 'Open-Scratchpad', 'Show-Scratchpad', 'Remove-Scratchpad' `
+    -CommandName 'Open-Scratchpad', 'Show-Scratchpad', 'Clear-Scratchpad', 'Remove-Scratchpad' `
     -ParameterName 'Name' `
     -ScriptBlock $ScratchpadCompleter
 

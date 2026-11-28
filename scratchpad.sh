@@ -222,7 +222,7 @@ case "${1:-}" in
         list "$@"
         ;;
 
-    --view)
+    --view|--show|-s)
         shift
         (( $# <= 1 )) || error "usage: scratchpad --view [name]"
         view "${1:-}"

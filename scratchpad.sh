@@ -181,8 +181,8 @@ error() {
 # Validate filename
 validate_name() {
     local name="$1"
-    if [[ "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
-        error "name must be a filename, not a path"
+    if [[ "$name" == -* || "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
+        error "name must be a filename, not a path or option"
     fi
 }
 

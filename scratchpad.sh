@@ -1,6 +1,30 @@
 #!/usr/bin/env bash
 
-# scratchpad: open/edit temporary files or piped input using your $EDITOR
+# scratchpad
+# 
+# A temporary terminal scratchpad for drafting/editing text and/or pipeline input using your $EDITOR
+#
+# There are times when you need to write something in the terminal
+# but also require the power and convenience of your editor.
+# There are also times when you want to quickly do one-off edits to the 
+# output of one command before passing it along to the input to the next.
+# 
+# scratchpad is just shell commands over your $EDITOR that make this easy.
+#
+# Using the editor directly works (mostly), but doesn't preserve history,
+# in case you make a tiny mistake constructing your curl --body {json}
+# and have to rewrite the whole thing all over again.
+# 
+# Requirements:
+# - An editor defined through `$EDITOR`
+# - (optional) `bat` for colored previews when available
+# - (optional) `fzf` for interactive `--show` picker
+
+# Installation
+#
+# 1. Clone/Download the script somewhere.
+# 2. Make the script executable with `chmod +x /path/to/scratchpad.sh`
+# 3. Link it to a directory on your PATH: `ln -s /path/to/scratchpad/sh ~/.local/bin/scratchpad`
 
 # Enable strict shell behaviour
 # - e               exit immediately if a command fails
@@ -43,6 +67,10 @@ show_help() {
         "  --examples              Show usage examples" \
         "  --version, -v           Print the version" \
         "  --help, -h              Show this help" \
+        "" \
+        "NOTE: Without a [name], scratchpad uses a default note named 'scratchpad'" \
+        "" \
+        "CAUTION: Piped input replaces the selected note's contents before opening the editor" \
         ""
 }
 
@@ -73,17 +101,17 @@ show_examples() {
 
 # Open or edit a scratchpad file
 scratchpad() {
-    # Declare local variables
+    # Declare local variables (prevents polluting the user's shell)
     local name scratchpad_file editor
     local -a editor_command
 
-    # Name of the scratchpad file
+    # Name of the scratchpad file. Defaults to `scratchpad`
     name="${1:-scratchpad}"
 
     # Keep names to a single file inside the scratchpad directory
     validate_name "$name"
 
-    # Path to the scratchpad file
+    # Full path to the scratchpad file
     scratchpad_file="$SCRATCHPAD_DIR/$name"
 
     # stdin is a terminal (-t 0) for normal interactive use:
@@ -131,7 +159,7 @@ scratchpad() {
 # DIRECTORY
 # ---------
 
-# Show scratchpad directory
+# Show the scratchpad directory
 directory() {
     echo "$SCRATCHPAD_DIR"
 }
@@ -140,7 +168,8 @@ directory() {
 # LIST
 # ----
 
-# List scratchpad files
+# List all scratchpad files using ls
+# Args are forwarded to the ls command
 list() {
     ls "$SCRATCHPAD_DIR" "$@"
 }
@@ -160,8 +189,10 @@ pick() {
 
     # Choose preview command based on available tools
     if command -v bat >/dev/null 2>&1; then
+        # If bat is available, use it for syntax highlighting
         preview_command='bat --color=always --style=plain --paging=never -- "$SCRATCHPAD_DIR"/{}'
     else
+        # Otherwise, fallback to using standard cat
         preview_command='cat -- "$SCRATCHPAD_DIR"/{}'
     fi
 
@@ -179,7 +210,6 @@ show() {
     name="${1:-}"
     if [[ -z "$name" ]]; then
         if selection=$(pick); then
-            # got a selection
             if [[ -n "$selection" ]]; then
                 display_file "$SCRATCHPAD_DIR/$selection"
             fi
@@ -216,6 +246,7 @@ remove() {
     echo "removed $name"
 }
 
+# -------
 # HELPERS
 # -------
 
@@ -225,7 +256,11 @@ error() {
     exit 1
 }
 
-# Validate filename
+# Validate filename.
+# - Must not start with a - (- and -- are reserved for options)
+# - Must not have a / (should not be a path)
+# - Must not have a \ (should not be a path)
+# - Must not contain . or .. (should not be a relative path)
 validate_name() {
     local name="$1"
     if [[ "$name" == -* || "$name" == *"/"* || "$name" == *"\\"* || "$name" == "." || "$name" == ".." ]]; then
@@ -240,8 +275,10 @@ validate_name() {
 display_file() {
     local file="$1"
     if [[ -t 1 ]] && command -v bat >/dev/null 2>&1; then
+        # Use bat if available and when stdout is a terminal
         bat --color=always --style=plain --paging=never -- "$file"
     else
+        # Otherwise fallback to standard cat
         cat "$file"
     fi
 }
@@ -254,31 +291,44 @@ display_file() {
 # Action flags start with a - or --. Bare words are treated as scratchpad names
 # After matching a flag, `shift` removes it so "$@" / "$1" becomes its arguments.
 
+# Dispatch based on the first argument (name or --option)
 case "${1:-}" in
+
+    # -- HELP --
 
     --help|-h)
         [[ $# -eq 1 ]] || error "help does not accept arguments"
         show_help
         ;;
 
+    # -- VERSION --
+
     --version|-v)
         [[ $# -eq 1 ]] || error "version does not accept arguments"
         show_version
         ;;
 
+    # -- EXAMPLE --
+
     --examples, --ex)
         show_examples
         ;;
+
+    # -- DIRECTORY --
 
     --dir|--directory|-d)
         [[ $# -eq 1 ]] || error "directory does not accept arguments"
         directory
         ;;
 
+    # -- LIST --
+
     --list|-l)
         shift
         list "$@"
         ;;
+
+    # -- SHOW --
 
     --show|--view|-s)
         shift
@@ -286,15 +336,21 @@ case "${1:-}" in
         show "${1:-}"
         ;;
 
+    # -- REMOVE --
+
     --remove|--rm|-r)
         shift
         (( $# == 1 )) || error "usage: scratchpad --remove <name>"
         remove "$1"
         ;;
 
+    # -- UNKNOWN OPTION --
+
     -*)
         error "unknown option: $1"
         ;;
+
+    # -- EVERYTHING ELSE / CATCH-ALL --
 
     *)
         (( $# <= 1 )) || error "expected at most one scratchpad name"

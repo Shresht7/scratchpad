@@ -47,6 +47,10 @@ scratchpad --version
 scratchpad --help
 ```
 
+> [!IMPORTANT]
+> Uses the editor as defined by the `$SCRATCHPAD_EDITOR` environment variable.
+> Falls back to `$EDITOR` and then `$VISUAL` if not set.
+
 > [!NOTE]
 > - Without a name, `scratchpad` uses the persistent `scratchpad` note.
 > - Piped input replaces the selected note's contents before opening the editor.

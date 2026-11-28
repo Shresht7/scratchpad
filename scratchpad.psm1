@@ -267,6 +267,8 @@ function Remove-Scratchpad {
     With no action flag, opens the default or named scratchpad. Piped text replaces
     the selected note before it is opened; the saved contents are then sent to the
     PowerShell pipeline.
+
+    Editor Resolution: $Env:SCRATCHPAD_EDITOR > $Env:EDITOR > $Env:VISUAL
 .EXAMPLE
     scratchpad
 .EXAMPLE

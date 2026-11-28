@@ -71,6 +71,11 @@ show_help() {
         "  --version, -v           Print the version" \
         "  --help, -h              Show this help" \
         "" \
+        "Environment:" \
+        "   Uses the editor defined by SCRATCHPAD_EDITOR." \
+        "   If SCRATCHPAD_EDITOR is not set, falls back to EDITOR then VISUAL." \
+        "       SCRATCHPAD_EDITOR > EDITOR > VISUAL" \
+        "" \
         "NOTE: Without a [name], scratchpad uses a default note named 'scratchpad'" \
         "" \
         "CAUTION: Piped input replaces the selected note's contents before opening the editor" \

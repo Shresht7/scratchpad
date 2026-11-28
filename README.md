@@ -13,8 +13,8 @@ Scratchpad files are simple plain-text saved locally in a cache directory (`~/.c
 ## Requirements
 
 - An editor configured through `$SCRATCHPAD_EDITOR` / `$EDITOR` / `$VISUAL`
-- `fzf` for the interactive `--show` picker.
-- `bat` is optional and is used for colored previews when available.
+- `fzf` *(optional)*: enables the interactive picker when `--show` / `Show-Scratchpad` is called without a name.
+- `bat` *(optional)*: used for colored previews when available.
 
 > [!NOTE]
 > For Visual Studio Code, set the editor (`$EDITOR`) environment variable to `code --wait` so Scratchpad waits for you to finish editing before continuing.
@@ -54,7 +54,7 @@ scratchpad --help
 > [!NOTE]
 > - Without a name, `scratchpad` uses the persistent `scratchpad` note.
 > - Piped input replaces the selected note's contents before opening the editor.
-> - `scratchpad --show` opens an `fzf` picker when no name is given.
+> - `scratchpad --show` opens an interactive `fzf` picker when no name is given (requires `fzf`).
 > - `scratchpad --list` forwards additional arguments to `ls`.
 
 Example:
@@ -117,4 +117,4 @@ scratchpad --help
 > git diff | scratchpad review
 > ```
 
-`Show-Scratchpad` opens the `fzf` picker if no name is provided. PowerShell pipelines pass objects, so the module converts incoming objects to text lines; it is intended for text, not binary data.
+`Show-Scratchpad` uses an interactive `fzf` picker when no name is provided (requires `fzf`). PowerShell pipelines pass objects, so the module converts incoming objects to text lines; it is intended for text, not binary data.

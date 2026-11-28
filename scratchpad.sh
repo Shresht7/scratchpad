@@ -221,6 +221,11 @@ show() {
     
     name="${1:-}"
     if [[ -z "$name" ]]; then
+
+        if ! command -v fzf >/dev/null 2>&1; then
+            error "fzf is required for interactive picking. Pass a scratchpad name, or install fzf"
+        fi
+
         if selection=$(pick); then
             if [[ -n "$selection" ]]; then
                 display_file "$SCRATCHPAD_DIR/$selection"

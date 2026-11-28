@@ -155,7 +155,7 @@ function Invoke-ScratchpadEditor {
     Show the contents of a scratchpad
 .DESCRIPTION
     Shows the contents of a scratchpad file.
-    If no name is given, fzf is used to select one.
+    If no name is given, an interactive fzf picker is used (requires fzf)
 #>
 function Show-Scratchpad {
     [CmdletBinding()]

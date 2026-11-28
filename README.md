@@ -43,6 +43,7 @@ scratchpad --list [ls options]
 scratchpad --show [name]
 scratchpad --remove <name>
 scratchpad --dir
+scratchpad --examples
 scratchpad --version
 scratchpad --help
 ```
@@ -54,6 +55,7 @@ scratchpad --help
 > [!NOTE]
 > - Without a name, `scratchpad` uses the persistent `scratchpad` note.
 > - Piped input replaces the selected note's contents before opening the editor.
+> - After editing, `scratchpad` prints the saved contents to stdout.
 > - `scratchpad --show` opens an interactive `fzf` picker when no name is given (requires `fzf`).
 > - `scratchpad --list` forwards additional arguments to `ls`.
 
@@ -61,6 +63,22 @@ Example:
 
 ```sh
 git diff | scratchpad review | grep TODO
+```
+
+### Completions
+
+Bash completions are provided in `scratchpad-completions.sh`.
+
+Source it from your shell startup, for example in `~/.bashrc`:
+
+```sh
+source /path/to/scratchpad-completions.sh
+```
+
+Or copy/install it into your bash-completion directory so it loads automatically, for example:
+
+```sh
+~/.local/share/bash-completion/completions/scratchpad
 ```
 
 ## PowerShell 7+

@@ -36,6 +36,7 @@ _scratchpad_complete() {
         --list -l
         --show --view -s
         --remove --rm -r
+        --examples --ex
     )
 
     # Initialize completions array

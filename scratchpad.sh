@@ -31,6 +31,7 @@ show_help() {
         "       scratchpad --show [name]" \
         "       scratchpad --remove <name>" \
         "       scratchpad --dir" \
+        "       scratchpad --examples" \
         "       scratchpad --version" \
         "       scratchpad --help" \
         "" \
@@ -39,6 +40,7 @@ show_help() {
         "  --show, --view [name]   Show a note; open the picker if name is omitted" \
         "  --remove, --rm, -r name Remove a note" \
         "  --dir, --directory, -d  Print the scratchpad directory" \
+        "  --examples              Show usage examples" \
         "  --version, -v           Print the version" \
         "  --help, -h              Show this help" \
         ""
@@ -47,6 +49,22 @@ show_help() {
 # Show the version information
 show_version() {
     printf '%s\n' "$VERSION"
+}
+
+# Show usage examples
+show_examples() {
+    printf '%s\n' \
+        "" \
+        "Examples:" \
+        "  scratchpad                       Open the default scratchpad" \
+        "  scratchpad test.json             Open a named scratchpad" \
+        "  git diff | scratchpad review     Replace 'review' with piped input, edit, then print" \
+        "  scratchpad --list                List scratchpads" \
+        "  scratchpad --show test.json      Show a scratchpad" \
+        "  scratchpad --show                Pick a scratchpad with fzf" \
+        "  scratchpad --remove test.json    Remove a scratchpad" \
+        "  scratchpad --dir                 Print the scratchpad directory" \
+        ""
 }
 
 # ----------
@@ -246,6 +264,10 @@ case "${1:-}" in
     --version|-v)
         [[ $# -eq 1 ]] || error "version does not accept arguments"
         show_version
+        ;;
+
+    --examples, --ex)
+        show_examples
         ;;
 
     --dir|--directory|-d)

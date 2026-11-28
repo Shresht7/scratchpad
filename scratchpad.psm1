@@ -407,34 +407,44 @@ $ScratchpadCompleter = {
     param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
 
     $prefix = ([string]$wordToComplete).Trim([char[]]@([char]39, [char]34))
-    $candidates = @()
+    $candidates = [System.Collections.Generic.List[string]]::new()
 
-    if ($parameterName -eq 'Name' -and
-        $commandName -in @('Invoke-Scratchpad', 'scratchpad')) {
-        $candidates += @(
-            'list', 'ls', '--list',
-            'view', '--view',
-            'rm', '--rm',
-            'dir', '--dir',
-            'version', '--version',
-            'help', '--help'
-        )
+    $noteNames = @(
+        Get-Scratchpad |
+        Where-Object { -not $_.PSIsContainer -and -not $_.Name.StartsWith('-') } |
+        ForEach-Object { $_.Name }
+    )
+
+    $actions = @(
+        '--help', '-h',
+        '--version', '-v',
+        '--dir', '--directory', '-d',
+        '--list', '-l',
+        '--view', '--show', '-s',
+        '--rm', '-r'
+    )
+
+    $isDispatcher = $commandName -in @('Invoke-Scratchpad', 'scratchpad')
+    $nameValue = [string]$fakeBoundParameters['Name']
+    $isViewAction = $fakeBoundParameters.ContainsKey('View') -or $nameValue -in ('--view', '--show', '-s')
+    $isRemoveAction = $fakeBoundParameters.ContainsKey('Remove') -or $nameValue -in ('--remove', '-r')
+
+    if ($isDispatcher -and $parameterName -eq 'Name') {
+        foreach ($name in $noteNames) { $candidates.Add($name) }
+        if ($prefix.StartsWith('-') -or $noteNames.Count -eq 0) {
+            foreach ($action in $actions) { $candidates.Add($action) }
+        }
+    }
+    elseif ($parameterName -eq 'Name' -and -not $isDispatcher) {
+        foreach ($name in $noteNames) { $candidates.Add($name) }
+    }
+    elseif ($isDispatcher -and $parameterName -eq 'Argument' -and ($isViewAction -or $isRemoveAction)) {
+        foreach ($name in $noteNames) { $candidates.Add($name) }
     }
 
-    if ($parameterName -eq 'Name' -or
-        ($parameterName -eq 'Argument' -and
-        $fakeBoundParameters['Name'] -in @('view', '--view', 'rm', '--rm', '-r'))) {
-        $candidates += @(
-            Get-Scratchpad |
-            Where-Object { -not $_.PSIsContainer } |
-            ForEach-Object { $_.Name }
-        )
-    }
-
-    foreach ($candidate in ($candidates | Sort-Object -Unique)) {
-        if ($candidate.StartsWith($prefix, [System.StringComparison]::OrdinalIgnoreCase)) {
+    foreach ($candidate in $candidates) {
+        if ($candidate.StartsWith($prefix), [System.StringComparison]::OrdinalIgnoreCase) {
             $completionText = $candidate
-
             if ($candidate -match '\s') {
                 $completionText = "'" + $candidate.Replace("'", "''") + "'"
             }

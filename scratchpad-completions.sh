@@ -35,6 +35,7 @@ _scratchpad_complete() {
         --dir --directory -d
         --list -l
         --show --view -s
+        --clear -c
         --remove --rm -r
         --examples --ex
     )
@@ -96,7 +97,7 @@ _scratchpad_complete() {
     case "$first" in
 
         # Actions that need a note name
-        --show|--view|-s|--remove|--rm|-r)
+        --show|--view|-s|--remove|--rm|-r|--clear|-c)
             if (( COMP_CWORD == 2 )); then
                 for name in "${names[@]}"; do
                     if [[ "$name" == "$current"* ]]; then

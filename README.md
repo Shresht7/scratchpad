@@ -11,7 +11,7 @@ Using the editor directly works (mostly), but doesn't preserve history in case y
 ## Requirements
 
 - An editor configured through `$EDITOR` / `$Env:EDITOR`
-- `fzf` for the interactive `view` picker.
+- `fzf` for the interactive `--show` picker.
 - `bat` is optional and is used for colored previews when available.
 
 > [!NOTE]
@@ -37,19 +37,19 @@ ln -s /path/to/scratchpad.sh ~/.local/bin/scratchpad
 
 ```sh
 scratchpad [name]
-scratchpad list [ls options]
-scratchpad view [name]
-scratchpad rm <name>
-scratchpad dir
-scratchpad version
-scratchpad help
+scratchpad --list [ls options]
+scratchpad --show [name]
+scratchpad --remove <name>
+scratchpad --dir
+scratchpad --version
+scratchpad --help
 ```
 
 > [!NOTE]
 > - Without a name, `scratchpad` uses the persistent `scratchpad` note.
 > - Piped input replaces the selected note's contents before opening the editor.
-> - `scratchpad view` opens an `fzf` picker when no name is given.
-> - `scratchpad list` forwards additional arguments to `ls`.
+> - `scratchpad --show` opens an `fzf` picker when no name is given.
+> - `scratchpad --list` forwards additional arguments to `ls`.
 
 Example:
 
@@ -97,8 +97,8 @@ The dispatcher supports:
 ```powershell
 scratchpad [name]
 scratchpad --list
-scratchpad --view [name]
-scratchpad --rm <name>
+scratchpad --show [name]
+scratchpad --remove <name>
 scratchpad --dir
 scratchpad --version
 scratchpad --help

@@ -224,30 +224,18 @@ case "${1:-}" in
 
     --view)
         shift
-        if [[ "${1:-}" == "--" ]]; then
-            shift
-        fi
         (( $# <= 1 )) || error "usage: scratchpad --view [name]"
         view "${1:-}"
         ;;
 
     --remove|--rm|-r)
         shift
-        if [[ "${1:-}" == "--" ]]; then
-            shift
-        fi
         (( $# == 1 )) || error "usage: scratchpad --remove <name>"
         remove "$1"
         ;;
 
-    --)
-        shift
-        (( $# <= 1 )) || error "expected at most one scratchpad name"
-        scratchpad "${1:-scratchpad}"
-        ;;
-
     -*)
-        error "unknown option: $1; use -- before names beginning with a dash"
+        error "unknown option: $1"
         ;;
 
     *)

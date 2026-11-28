@@ -13,7 +13,7 @@ _scratchpad_complete() {
         --version -v
         --dir --directory -d
         --list -l
-        --view
+        --show --view -s
         --remove --rm -r
         --
     )
@@ -62,10 +62,10 @@ _scratchpad_complete() {
         return 0
     fi
 
-    # Second argument to --view or --remove: note names
+    # Second argument to --show/--view or --remove: note names
     first="${COMP_WORDS[1]}"
     case "$first" in
-        --view|--remove|--rm|-r) 
+        --show|--view|-s|--remove|--rm|-r)
             if (( COMP_CWORD == 2 )); then
                 for name in "${names[@]}"; do
                     if [[ "$name" == "$current"* ]]; then

@@ -22,7 +22,7 @@ show_help() {
         "" \
         "Usage: scratchpad [name]" \
         "       scratchpad --list [ls-options]" \
-        "       scratchpad --view [name]" \
+        "       scratchpad --show [name]" \
         "       scratchpad --remove <name>" \
         "       scratchpad --dir" \
         "       scratchpad --version" \
@@ -30,7 +30,7 @@ show_help() {
         "" \
         "Options:" \
         "  --list, -l              List scratchpads; forward remaining arguments to ls" \
-        "  --view [name]           View a note; open the picker if name is omitted" \
+        "  --show, --view [name]   Show a note; open the picker if name is omitted" \
         "  --remove, --rm, -r name Remove a note" \
         "  --dir, --directory, -d  Print the scratchpad directory" \
         "  --version, -v           Print the version" \
@@ -108,7 +108,7 @@ list() {
 }
 
 # ----
-# VIEW
+# SHOW
 # ----
 
 pick() {
@@ -128,7 +128,7 @@ pick() {
         --reverse
 }
 
-view() {
+show() {
     local name selection pick_status
     
     name="${1:-}"
@@ -222,10 +222,10 @@ case "${1:-}" in
         list "$@"
         ;;
 
-    --view|--show|-s)
+    --show|--view|-s)
         shift
-        (( $# <= 1 )) || error "usage: scratchpad --view [name]"
-        view "${1:-}"
+        (( $# <= 1 )) || error "usage: scratchpad --show [name]"
+        show "${1:-}"
         ;;
 
     --remove|--rm|-r)

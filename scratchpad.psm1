@@ -298,11 +298,11 @@ function Remove-Scratchpad {
 function Invoke-Scratchpad {
     [CmdletBinding()]
     param(
-        # A scratchpad name or an action flag such as --list/--view/--remove
+        # A scratchpad name or an action flag such as --list/--show/--remove
         [Parameter(Position = 0)]
         [string]$Name,
 
-        # The name argument for flags such as `--view` and `--remove`
+        # The name argument for flags such as `--show` and `--remove`
         [Parameter(Position = 1)]
         [string]$Argument,
 
@@ -319,9 +319,9 @@ function Invoke-Scratchpad {
         [Alias('l', 'ls')]
         [switch]$List,
 
-        # View a scratchpad, or open the picker when no name is given
-        [Alias('Show', 's')]
-        [switch]$View,
+        # Show a scratchpad, or open the picker when no name is given
+        [Alias('View', 's')]
+        [switch]$Show,
 
         # Show command help
         [Alias('h')]
@@ -371,7 +371,7 @@ function Invoke-Scratchpad {
             return
         }
 
-        if ($View -or $actionName -in @('--view', '--show', '-s')) {
+        if ($Show -or $actionName -in @('--show', '--view', '-s')) {
             $viewName = if ($actionName) { $Argument } else { $Name }
             Show-Scratchpad -Name $viewName
             return
@@ -425,13 +425,13 @@ $ScratchpadCompleter = {
         '--version', '-v',
         '--dir', '--directory', '-d',
         '--list', '-l',
-        '--view', '--show', '-s',
+        '--show', '--view', '-s',
         '--remove', '--rm', '-r'
     )
 
     $isDispatcher = $commandName -in @('Invoke-Scratchpad', 'scratchpad')
     $nameValue = [string]$fakeBoundParameters['Name']
-    $isViewAction = $fakeBoundParameters.ContainsKey('View') -or $nameValue -in ('--view', '--show', '-s')
+    $isShowAction = $fakeBoundParameters.ContainsKey('Show') -or $nameValue -in ('--show', '--view', '-s')
     $isRemoveAction = $fakeBoundParameters.ContainsKey('Remove') -or $nameValue -in ('--remove', '--rm', '-r')
 
     if ($isDispatcher -and $parameterName -eq 'Name') {
@@ -443,7 +443,7 @@ $ScratchpadCompleter = {
     elseif ($parameterName -eq 'Name' -and -not $isDispatcher) {
         foreach ($name in $noteNames) { $candidates.Add($name) }
     }
-    elseif ($isDispatcher -and $parameterName -eq 'Argument' -and ($isViewAction -or $isRemoveAction)) {
+    elseif ($isDispatcher -and $parameterName -eq 'Argument' -and ($isShowAction -or $isRemoveAction)) {
         foreach ($name in $noteNames) { $candidates.Add($name) }
     }
 

@@ -17,6 +17,8 @@ Env PS1 "$ "
 Hide
 Type "rm -rf /tmp/scratchpad-vhs-demo && mkdir -p /tmp/scratchpad-vhs-demo && cd /tmp/scratchpad-vhs-demo"
 Enter
+Type "printf 'INFO  app started\nERROR connection timeout\nINFO  retrying\nERROR permission denied\nINFO  shutting down\n' > app.log"
+Enter
 Type "clear"
 Enter
 Show
@@ -76,6 +78,32 @@ Enter
 Ctrl+D
 Ctrl+D
 Type "v3"
+Sleep 500ms
+
+Ctrl+O
+Enter
+Ctrl+X
+
+
+# Pipeline: keep only ERROR lines in the editor
+Sleep 1s
+Type "cat app.log | scratchpad | wc -l"
+Sleep 500ms
+Enter
+
+Sleep 1s
+Ctrl+W
+Type "INFO"
+Enter
+Ctrl+K
+Ctrl+W
+Type "INFO"
+Enter
+Ctrl+K
+Ctrl+W
+Type "INFO"
+Enter
+Ctrl+K
 Sleep 500ms
 
 Ctrl+O

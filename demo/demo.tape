@@ -8,7 +8,11 @@ Set FontSize 20
 Set Width 1200
 Set Height 600
 Set Padding 24
-Set Theme "MaterialDarker"
+Set Theme "Catppuccin Mocha"
+Set WindowBar ColorfulRight
+Set Margin 20
+Set MarginFill "#7b7b7b"
+Set BorderRadius 10
 Set TypingSpeed 50ms
 
 Env EDITOR "nano"

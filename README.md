@@ -6,22 +6,33 @@ There are times when you need to write something in the terminal but still want 
 
 Using the editor directly works (mostly), but doesn't preserve history. If you make a small mistake while constructing your YAML or JSON, you may have to start over and rewrite the whole damn thing again. `scratchpad` preserves your edits so you can pick up where you left off.
 
-Scratchpad files are simple plain-text saved locally in a cache directory (`~/.cache/scratchpad`).
+Scratchpad files are plain-text files saved locally in a cache directory (`~/.cache/scratchpad`).
 
-**Born out of the frustration of writing inline JSON for `curl`'s body**
+**Born out of the frustration of writing inline JSON for `curl`'s body.**
 
 ## Requirements
 
-- An editor configured through `$SCRATCHPAD_EDITOR` / `$EDITOR` / `$VISUAL`
-- `fzf` *(optional)*: enables the interactive picker when `--show` / `Show-Scratchpad` is called without a name.
+- An editor command configured through `$SCRATCHPAD_EDITOR`, `$EDITOR`, or `$VISUAL` (PowerShell: `$Env:SCRATCHPAD_EDITOR`, `$Env:EDITOR`, `$Env:VISUAL`), resolved in that order.
+- `fzf` *(optional)*: enables the interactive picker when showing a scratchpad without a name.
 - `bat` *(optional)*: used for colored previews when available.
 
 > [!NOTE]
-> For Visual Studio Code, set the editor (`$EDITOR`) environment variable to `code --wait` so Scratchpad waits for you to finish editing before continuing.
+> For Visual Studio Code, set the editor command to `code --wait` so Scratchpad waits for you to finish editing before continuing.
 
-## Bash
+## Usage
 
-### Install
+Common behavior across Bash and PowerShell:
+
+- Without a name, `scratchpad` uses the persistent `scratchpad` file.
+- After editing, Scratchpad emits the saved contents (stdout in Bash, pipeline output in PowerShell).
+- Scratchpad names must be filenames, not paths or options.
+
+> [!CAUTION]
+> Piped input replaces the selected scratchpad's contents before opening the editor.
+
+### Bash
+
+#### Install
 
 Make the script executable and link it into a directory on your `PATH`:
 
@@ -33,9 +44,7 @@ chmod +x /path/to/scratchpad.sh
 ln -s /path/to/scratchpad.sh ~/.local/bin/scratchpad
 ```
 
----
-
-### Usage
+#### Commands
 
 ```sh
 scratchpad [name]
@@ -48,14 +57,7 @@ scratchpad --version
 scratchpad --help
 ```
 
-> [!IMPORTANT]
-> Uses the editor as defined by the `$SCRATCHPAD_EDITOR` environment variable.
-> Falls back to `$EDITOR` and then `$VISUAL` if not set.
-
 > [!NOTE]
-> - Without a name, `scratchpad` uses the persistent `scratchpad` note.
-> - Piped input replaces the selected note's contents before opening the editor.
-> - After editing, `scratchpad` prints the saved contents to stdout.
 > - `scratchpad --show` opens an interactive `fzf` picker when no name is given (requires `fzf`).
 > - `scratchpad --list` forwards additional arguments to `ls`.
 
@@ -65,7 +67,7 @@ Example:
 git diff | scratchpad review | grep TODO
 ```
 
-### Completions
+#### Completions
 
 Bash completions are provided in `scratchpad-completions.sh`.
 
@@ -81,9 +83,9 @@ Or copy/install it into your bash-completion directory so it loads automatically
 ~/.local/share/bash-completion/completions/scratchpad
 ```
 
-## PowerShell 7+
+### PowerShell
 
-### Install
+#### Install
 
 For the current session, import the manifest from the repository:
 
@@ -91,20 +93,20 @@ For the current session, import the manifest from the repository:
 Import-Module ./scratchpad.psd1
 ```
 
-To enable module auto-loading, copy `scratchpad.psd1` and `scratchpad.psm1` into a directory named `scratchpad` under a writable path listed in `$env:PSModulePath`. 
+To enable module auto-loading, copy `scratchpad.psd1` and `scratchpad.psm1` into a directory named `scratchpad` under a writable path listed in `$env:PSModulePath`.
 
 Common user module directories are:
 
 - Windows: `$HOME\Documents\PowerShell\Modules\scratchpad`
 - Linux/macOS: `$HOME/.local/share/powershell/Modules/scratchpad`
 
-Set `$Env:SCRATCHPAD_EDITOR`, `$Env:EDITOR` or `$Env:VISUAL` in the current session or your PowerShell profile. For Visual Studio Code:
+Set your editor command in the current session or your PowerShell profile. For Visual Studio Code:
 
 ```powershell
 $Env:EDITOR = 'code --wait'
 ```
 
-### Usage
+#### Commands
 
 The module exposes native PowerShell commands and a `scratchpad` alias for the Bash-style dispatcher:
 
@@ -128,19 +130,15 @@ scratchpad --version
 scratchpad --help
 ```
 
-> [!CAUTION]
-> Piped text replaces the selected note's contents before opening the editor. For example:
->
-> ```powershell
-> git diff | scratchpad review
-> ```
-
 > [!NOTE]
-> - After editing, the saved contents are returned to the PowerShell pipeline.
 > - `Show-Scratchpad` uses an interactive `fzf` picker when no name is provided (requires `fzf`).
 > - PowerShell pipelines pass objects, so the module converts incoming objects to text lines; it is intended for text, not binary data.
 
----
+For example:
+
+```powershell
+git diff | scratchpad review | Set-Content review.txt
+```
 
 ## License
 

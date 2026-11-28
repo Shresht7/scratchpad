@@ -1,25 +1,37 @@
 # `scratchpad`
 
-A temporary terminal scratchpad for quick edits in the terminal and in shell pipelines.
+A temporary terminal `scratchpad` for quick edits in the terminal and in-shell pipelines.
 
 There are times when you need to write something in the terminal but still want the power and convenience of your editor. There are also times when you want to make quick, one-off edits to the output of one command before passing it onto the next. `scratchpad` wraps your editor in a few shell commands to make that easy.
 
-Using the editor directly works (mostly), but doesn't preserve history. If you make a small mistake while constructing your YAML or JSON, you may have to start over and rewrite the whole damn thing again. `scratchpad` preserves your edits so you can pick up where you left off.
+Using the editor directly *can* work (~~mostly~~), but it doesn't preserve history. If you make a small mistake while constructing your YAML or JSON, you may have to start over and rewrite the whole damn thing again. `scratchpad` keeps track so you can pick up where you left off.
 
 ![Showcase scratchpad usage with JSON](./demo/demo.gif)
 
-Scratchpad files are plain-text files saved locally in a cache directory (`~/.cache/scratchpad`).
+<div align="center">
 
-**Born out of the frustration of writing inline JSON for `curl`'s body.**
+***Born out of the frustration of writing inline JSON for `curl`'s body.***
+
+</div>
+
+---
 
 ## Requirements
 
-- An editor command configured through `$SCRATCHPAD_EDITOR`, `$EDITOR`, or `$VISUAL` (PowerShell: `$Env:SCRATCHPAD_EDITOR`, `$Env:EDITOR`, `$Env:VISUAL`), resolved in that order.
-- `fzf` *(optional)*: enables the interactive picker when showing a scratchpad without a name.
-- `bat` *(optional)*: used for colored previews when available.
+- An editor that can be invoked from the terminal
+- *(optional)* `fzf`: enables the interactive picker when showing a scratchpad without a name.
+- *(optional)* `bat`: used for colored previews when available.
+
+> [!IMPORTANT]
+> Resolves the editor command from environment variables.
+> - **bash**: `$SCRATCHPAD_EDITOR` > `$EDITOR` > `$VISUAL`
+> - **powershell**: `$Env:SCRATCHPAD_EDITOR` > `$Env:EDITOR` > `$Env:VISUAL`
+> Ensure that at least one of these is set to the editor of your choice.
 
 > [!NOTE]
 > For Visual Studio Code, set the editor command to `code --wait` so Scratchpad waits for you to finish editing before continuing.
+
+---
 
 ## Usage
 
@@ -30,7 +42,9 @@ Common behavior across Bash and PowerShell:
 - Scratchpad names must be filenames, not paths or options.
 
 > [!CAUTION]
-> Piped input replaces the selected scratchpad's contents before opening the editor.
+> **Piped input replaces the selected scratchpad's contents.**
+
+Scratchpad files are plain-text files saved locally in a cache directory (`~/.cache/scratchpad`).
 
 ### Bash
 
@@ -142,6 +156,8 @@ For example:
 git diff | scratchpad review | Set-Content review.txt
 ```
 
+---
+
 ## License
 
-[MIT](LICENSE)
+The project is licensed under [MIT License](LICENSE). See [LICENSE](LICENSE) file for details.

@@ -22,7 +22,7 @@ Enter
 Show
 
 # First run: draft in editor, pipe to jq
-Type "scratchpad request.json | jq ."
+Type "scratchpad | jq ."
 Sleep 500ms
 Enter
 Sleep 1s
@@ -46,7 +46,7 @@ Ctrl+X
 Sleep 2s
 
 # Second run: Run the same command again but pipe to jq .name this time
-Type "scratchpad request.json | jq .name"
+Type "scratchpad | jq .name"
 Sleep 500ms
 Enter
 
@@ -65,7 +65,7 @@ Ctrl+X
 
 # Third run: reopen persisted scratchpad, edit, pipe again
 Sleep 1s
-Type "scratchpad request.json | jq ."
+Type "scratchpad | jq ."
 Sleep 500ms
 Enter
 

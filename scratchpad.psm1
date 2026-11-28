@@ -426,13 +426,13 @@ $ScratchpadCompleter = {
         '--dir', '--directory', '-d',
         '--list', '-l',
         '--view', '--show', '-s',
-        '--rm', '-r'
+        '--remove', '--rm', '-r'
     )
 
     $isDispatcher = $commandName -in @('Invoke-Scratchpad', 'scratchpad')
     $nameValue = [string]$fakeBoundParameters['Name']
     $isViewAction = $fakeBoundParameters.ContainsKey('View') -or $nameValue -in ('--view', '--show', '-s')
-    $isRemoveAction = $fakeBoundParameters.ContainsKey('Remove') -or $nameValue -in ('--remove', '-r')
+    $isRemoveAction = $fakeBoundParameters.ContainsKey('Remove') -or $nameValue -in ('--remove', '--rm', '-r')
 
     if ($isDispatcher -and $parameterName -eq 'Name') {
         foreach ($name in $noteNames) { $candidates.Add($name) }

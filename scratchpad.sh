@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 
-# Enable strict behaviour. Exit on errors and unset vars. Fail on pipe errors.
+# scratchpad: open/edit temporary files or piped input using your $EDITOR
+
+# Enable strict shell behaviour
+# - e               exit immediately if a command fails
+# - u               treat unset variables as errors
+# - o pipefail      a pipeline fails if any command in it fails
 set -euo pipefail
 
 # Script Version
@@ -15,6 +20,7 @@ mkdir -p "$SCRATCHPAD_DIR"  # Ensure that the scratchpad directory exists
 # HELP
 # ----
 
+# Show the help message
 show_help() {
     printf '%s\n' \
         "" \
@@ -38,6 +44,7 @@ show_help() {
         ""
 }
 
+# Show the version information
 show_version() {
     printf '%s\n' "$VERSION"
 }
@@ -46,6 +53,7 @@ show_version() {
 # SCRATCHPAD
 # ----------
 
+# Open or edit a scratchpad file
 scratchpad() {
     # Declare local variables
     local name scratchpad_file editor
@@ -60,6 +68,10 @@ scratchpad() {
     # Path to the scratchpad file
     scratchpad_file="$SCRATCHPAD_DIR/$name"
 
+    # stdin is a terminal (-t 0) for normal interactive use:
+    # keep existing note contents, creating an empty file if needed.
+    # When stdin is piped, replace the note with the piped text so the
+    # editor starts from that input.
     if [[ -t 0 ]]; then
         # Interactive use: keep the current note, creating if needed
         [[ -e "$scratchpad_file" ]] || : > "$scratchpad_file"
@@ -67,6 +79,10 @@ scratchpad() {
         # Pipeline use: replace the note with incoming text
         cat > "$scratchpad_file"
     fi
+
+    # Resolve $EDITOR into a command array
+    # - If the whole value is an executable path/name (including spaces), use it as-is.
+    # - Otherwise split on whitespace so values like "code --wait" become: command + args
 
     # Editor to use for the scratchpad
     editor="${EDITOR:-micro}"
@@ -78,13 +94,15 @@ scratchpad() {
     # or a simple command plus arguments, such as "code --wait"
     if command -v "$editor" > /dev/null 2>&1; then
         editor_command=("$editor")
-    else
+    else 
         read -r -a editor_command <<< "$editor"
         ((${#editor_command[@]} > 0)) || error "EDITOR is empty"
         command -v "${editor_command[0]}" > /dev/null 2>&1 || error "editor not found: ${editor_command[0]}"
     fi
 
     # Open the scratchpad with the editor
+    # Run the editor attached to the real terminal, not the pipeline stdin/stdout.
+    # This lets `git diff | scratchpad name | ...` still open an interactive editor
     "${editor_command[@]}" "$scratchpad_file" </dev/tty >/dev/tty 2>&1
 
     # Once we're done editing, forward the file contents to stdout
@@ -95,6 +113,7 @@ scratchpad() {
 # DIRECTORY
 # ---------
 
+# Show scratchpad directory
 directory() {
     echo "$SCRATCHPAD_DIR"
 }
@@ -103,6 +122,7 @@ directory() {
 # LIST
 # ----
 
+# List scratchpad files
 list() {
     ls "$SCRATCHPAD_DIR" "$@"
 }
@@ -111,8 +131,14 @@ list() {
 # SHOW
 # ----
 
+# Pick a scratchpad file with fzf
 pick() {
     local preview_command
+
+    # fzf's --preview runs a shell command;
+    # {} is replaced by the selected filename.
+    # SCRATCHPAD_DIR is exported into the fzf environment so the
+    # preview command can resolve the full path
 
     # Choose preview command based on available tools
     if command -v bat >/dev/null 2>&1; then
@@ -128,6 +154,7 @@ pick() {
         --reverse
 }
 
+# Show the contents of scratchpad file
 show() {
     local name selection pick_status
     
@@ -139,7 +166,8 @@ show() {
                 display_file "$SCRATCHPAD_DIR/$selection"
             fi
         else
-            # fzf selection failed
+            # fzf exit codes: 0 selected, 1 no match, 130 cancelled (Esc/Ctrl+C)
+            # Treat "no selection" and "cancelled" as a normal no-op
             pick_status=$?
             case "$pick_status" in
                 1|130) return 0;;
@@ -159,6 +187,7 @@ show() {
 # REMOVE
 # ------
 
+# Remove a scratchpad file
 remove() {
     local name
     name="${1:-}"
@@ -186,7 +215,10 @@ validate_name() {
     fi
 }
 
-# Display file with bat if available and outputting to an interactive terminal, else cat
+# Display file contents.
+# Use bat only when stdout is a terminal (-t 1), so piped
+# output stays plain text. --color=always keeps preview colored when bat is used
+# explicitly in an interactive preview/pager context
 display_file() {
     local file="$1"
     if [[ -t 1 ]] && command -v bat >/dev/null 2>&1; then
@@ -199,6 +231,10 @@ display_file() {
 # --------------
 # COMMAND SWITCH
 # --------------
+
+# ${1:-} safely read the first arg, or empty string when no args were passed.
+# Action flags start with a - or --. Bare words are treated as scratchpad names
+# After matching a flag, `shift` removes it so "$@" / "$1" becomes its arguments.
 
 case "${1:-}" in
 

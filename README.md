@@ -139,3 +139,9 @@ scratchpad --help
 > - After editing, the saved contents are returned to the PowerShell pipeline.
 > - `Show-Scratchpad` uses an interactive `fzf` picker when no name is provided (requires `fzf`).
 > - PowerShell pipelines pass objects, so the module converts incoming objects to text lines; it is intended for text, not binary data.
+
+---
+
+## License
+
+[MIT](LICENSE)

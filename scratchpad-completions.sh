@@ -15,7 +15,6 @@ _scratchpad_complete() {
         --list -l
         --show --view -s
         --remove --rm -r
-        --
     )
 
     # Initialize completions
